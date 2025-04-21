@@ -12,7 +12,7 @@
         {
             "id": 1,
             "name": "Promo 1 Dev Web",
-            "status": "inactive",
+            "status": "active",
             "image": "cloud.jpg",
             "date_debut": "2024-01-01",
             "date_fin": "2024-12-31",
@@ -20,7 +20,8 @@
                 1,
                 3,
                 "68055a4959120",
-                "680559b417dab"
+                "680559b417dab",
+                "680554ece9556"
             ],
             "apprenants": [
                 {
@@ -84,7 +85,7 @@
         {
             "id": 5,
             "name": "Promo 5 IA",
-            "status": "active",
+            "status": "inactive",
             "image": "cloud.jpg",
             "date_debut": "2024-02-01",
             "date_fin": "2025-01-31",
