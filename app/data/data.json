@@ -1,0 +1,354 @@
+{
+    "users": [
+        {
+            "id": "1",
+            "name": "Admin",
+            "email": "admin@odc.sn",
+            "password": "passer123",
+            "profile": "Admin"
+        }
+    ],
+    "promotions": [
+        {
+            "id": 1,
+            "name": "Promo 1 Dev Web",
+            "status": "inactive",
+            "image": "cloud.jpg",
+            "date_debut": "2024-01-01",
+            "date_fin": "2024-12-31",
+            "referentiels": [
+                1,
+                3,
+                "68055a4959120",
+                "680559b417dab"
+            ],
+            "apprenants": [
+                {
+                    "id": 1,
+                    "name": "John Doe"
+                },
+                {
+                    "id": 2,
+                    "name": "Jane Smith"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Promo 1 Data",
+            "status": "inactive",
+            "image": "cloud1.jpg",
+            "date_debut": "2024-02-01",
+            "date_fin": "2024-12-31",
+            "referentiels": [
+                2
+            ],
+            "apprenants": [
+                {
+                    "id": 3,
+                    "name": "Alice Johnson"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Promo 3 R\u00e9ferents Digital",
+            "status": "inactive",
+            "image": "cloud.jpg",
+            "date_debut": "2024-03-01",
+            "date_fin": "2025-02-28",
+            "apprenants": [
+                {
+                    "id": 6,
+                    "name": "David Lee"
+                },
+                {
+                    "id": 7,
+                    "name": "Emma Davis"
+                },
+                {
+                    "id": 8,
+                    "name": "Frank Miller"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Promo 4 DevOps",
+            "status": "inactive",
+            "image": "cloud.jpg",
+            "date_debut": "2023-11-01",
+            "date_fin": "2024-10-31",
+            "apprenants": []
+        },
+        {
+            "id": 5,
+            "name": "Promo 5 IA",
+            "status": "active",
+            "image": "cloud.jpg",
+            "date_debut": "2024-02-01",
+            "date_fin": "2025-01-31",
+            "apprenants": [
+                {
+                    "id": 9,
+                    "name": "Grace Wilson"
+                },
+                {
+                    "id": 10,
+                    "name": "Henry Ford"
+                }
+            ],
+            "referentiels": [
+                "68055a7e7d4e3"
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Promo 7 IA",
+            "status": "inactive",
+            "image": "cloud.jpg",
+            "date_debut": "2024-02-01",
+            "date_fin": "2025-01-31",
+            "apprenants": [
+                {
+                    "id": 9,
+                    "name": "Grace Wilson"
+                },
+                {
+                    "id": 10,
+                    "name": "Henry Ford"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Promo 9 IA",
+            "status": "inactive",
+            "image": "cloud.jpg",
+            "date_debut": "2024-02-01",
+            "date_fin": "2025-01-31",
+            "apprenants": [
+                {
+                    "id": 9,
+                    "name": "Grace Wilson"
+                },
+                {
+                    "id": 10,
+                    "name": "Henry Ford"
+                }
+            ]
+        },
+        {
+            "name": "promotion 2025",
+            "date_debut": "2025-04-20",
+            "date_fin": "2025-05-02",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 6
+        },
+        {
+            "name": "promotion 2025",
+            "date_debut": "2025-04-20",
+            "date_fin": "2025-04-22",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 7,
+            "referentiels": [
+                "68055a7e7d4e3",
+                "68055b45eb279"
+            ]
+        },
+        {
+            "name": "promotion 2025",
+            "date_debut": "2025-04-20",
+            "date_fin": "2025-04-22",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 8
+        },
+        {
+            "name": "promotion 2025",
+            "date_debut": "2025-04-20",
+            "date_fin": "2025-04-24",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 9
+        },
+        {
+            "name": "promotion 2028",
+            "date_debut": "2025-04-20",
+            "date_fin": "2025-04-30",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 10
+        },
+        {
+            "name": "AWS",
+            "date_debut": "2025-02-19",
+            "date_fin": "2025-04-27",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 11
+        },
+        {
+            "name": "Abdoulaye",
+            "date_debut": "2025-04-11",
+            "date_fin": "2025-04-23",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 12
+        },
+        {
+            "name": "Abdoulaye Diallo",
+            "date_debut": "2025-04-20",
+            "date_fin": "2025-04-23",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 13
+        },
+        {
+            "name": "promotion 2027",
+            "date_debut": "2025-04-04",
+            "date_fin": "2025-04-30",
+            "image": "cloud.jpg",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 14
+        },
+        {
+            "name": "Promo 2028",
+            "date_debut": "2025-04-01",
+            "date_fin": "2025-04-26",
+            "image": "6805ad4f54c6f.png",
+            "status": "inactive",
+            "apprenants": [],
+            "id": 15
+        }
+    ],
+    "referentiels": [
+        {
+            "id": "1",
+            "name": "Dev Web",
+            "description": "Formation d\u00e9veloppement web",
+            "image": "assets\/images\/referentiels\/dev-web.jpg",
+            "modules": []
+        },
+        {
+            "id": 2,
+            "name": "R\u00e9f\u00e9rentiel Data",
+            "description": "Science des donn\u00e9es et IA",
+            "status": "active"
+        },
+        {
+            "id": 3,
+            "name": "R\u00e9f\u00e9rentiel DevOps",
+            "description": "Administration syst\u00e8me et d\u00e9ploiement",
+            "status": "active"
+        },
+        {
+            "id": 4,
+            "name": "R\u00e9f\u00e9rentiel Mobile",
+            "description": "D\u00e9veloppement d'applications mobiles",
+            "status": "active"
+        },
+        {
+            "id": "680551196d5ac",
+            "name": "Dev Data",
+            "description": "la science ",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "68055255052f5",
+            "name": "nfj",
+            "description": "chc",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "680552ef31e03",
+            "name": "sbsdh",
+            "description": "cjdj",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "680553b967e8b",
+            "name": "dev web",
+            "description": "la science de ns  jour",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "680554ece9556",
+            "name": "dev ref",
+            "description": "xx",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "680557b9a0a57",
+            "name": "xchch",
+            "description": "nchc",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "680559b417dab",
+            "name": "aws",
+            "description": "la science ",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "68055a4959120",
+            "name": "dndndhhh",
+            "description": "la science ",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "68055a7e7d4e3",
+            "name": "cloud",
+            "description": "xdhdh",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        },
+        {
+            "id": "68055b45eb279",
+            "name": "cloud aws",
+            "description": "la science de nos jour",
+            "image": "assets\/images\/default-referentiel.jpg",
+            "capacite": 30,
+            "sessions": 10,
+            "modules": []
+        }
+    ],
+    "apprenants": []
+}
