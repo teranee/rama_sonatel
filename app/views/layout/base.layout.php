@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Apprenants ODC</title>
-    <link rel="stylesheet" href="public/assets/css/style.css">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <!-- Autres liens CSS... -->
 </head>
 <body>
     <div class="container">

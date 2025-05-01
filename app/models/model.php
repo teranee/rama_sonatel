@@ -12,43 +12,57 @@ use App\Enums\Status; // Ajout de cette ligne
 // Collection de toutes les fonctions modèles pour l'application
 $model = [
     // Fonctions de base pour manipuler les données
-    'read_data' => function () {
-        if (!file_exists(Enums\DATA_PATH)) {
-            // Si le fichier n'existe pas, on renvoie une structure par défaut
+    'read_data' => function() {
+        $json_file = __DIR__ . '/../data/data.json';
+        if (!file_exists($json_file)) {
             return [
-                'users' => [],
+                'apprenants' => [],
                 'promotions' => [],
-                'referentiels' => [],
-                'apprenants' => []
+                'referentiels' => []
             ];
         }
-        
-        $json_data = file_get_contents(Enums\DATA_PATH);
-        $data = json_decode($json_data, true);
-        
-        if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
-            // En cas d'erreur de décodage JSON
-            return [
-                'users' => [],
-                'promotions' => [],
-                'referentiels' => [],
-                'apprenants' => []
-            ];
-        }
-        
-        return $data;
+        return json_decode(file_get_contents($json_file), true);
     },
     
     'write_data' => function ($data) {
         // Vérifier si le dossier data existe, sinon le créer
         $data_dir = dirname(Enums\DATA_PATH);
         if (!is_dir($data_dir)) {
-            mkdir($data_dir, 0777, true);
+            if (!@mkdir($data_dir, 0775, true)) {
+                error_log("Impossible de créer le dossier : $data_dir");
+                return false;
+            }
+        }
+        
+        // Vérifier les permissions
+        if (!is_writable($data_dir)) {
+            error_log("Le dossier n'est pas accessible en écriture : $data_dir");
+            return false;
         }
         
         $json_data = json_encode($data, JSON_PRETTY_PRINT);
-        return file_put_contents(Enums\DATA_PATH, $json_data) !== false;
+        
+        // Utiliser @ pour supprimer l'avertissement et vérifier le retour
+        if (@file_put_contents(Enums\DATA_PATH, $json_data) === false) {
+            error_log("Impossible d'écrire dans le fichier : " . Enums\DATA_PATH);
+            return false;
+        }
+        
+        return true;
     },
+    'add_promotion' => function ($new_promo) {
+        $read_data = $GLOBALS['model']['read_data']();
+        $promotions = $read_data['promotions'] ?? [];
+
+        // Générer un ID unique (ex: timestamp)
+        $new_promo['id'] = time();
+
+        $promotions[] = $new_promo;
+        $read_data['promotions'] = $promotions;
+
+        $GLOBALS['model']['write_data']($read_data);
+    },
+
     
     'generate_id' => function () {
         return uniqid();
@@ -156,61 +170,35 @@ $model = [
     },
     
     'create_promotion' => function(array $promotion_data) use (&$model) {
-        $data = $model['read_data']();
-        
-        // Générer un nouvel ID
-        $max_id = 0;
-        foreach ($data['promotions'] as $promotion) {
-            $max_id = max($max_id, (int)$promotion['id']);
+        if (empty($promotion_data['name']) || empty($promotion_data['date_debut']) || empty($promotion_data['date_fin'])) {
+            return false; // Données invalides
         }
-        
-        $promotion_data['id'] = $max_id + 1;
-        $promotion_data['status'] = 'inactive'; // Statut inactif par défaut
-        
-        // Ajouter la promotion
+
+        $data = $model['read_data']();
+        $promotion_data['id'] = uniqid();
+        $promotion_data['status'] = 'inactive';
         $data['promotions'][] = $promotion_data;
-        
-        // Sauvegarder les données
+
         return $model['write_data']($data);
     },
-    
-    'update_promotion' => function ($id, $promotion_data) use (&$model) {
+    $model['update_promotion'] = function ($updated_promotion) use (&$model) {
         $data = $model['read_data']();
-        
-        // Trouver l'index de la promotion
-        $promotion_indices = array_keys(array_filter($data['promotions'], function($promotion) use ($id) {
-            return $promotion['id'] === $id;
-        }));
-        
-        if (empty($promotion_indices)) {
-            return false;
+        foreach ($data['promotions'] as &$promotion) {
+            if ($promotion['id'] == $updated_promotion['id']) {
+                $promotion = $updated_promotion;
+                break;
+            }
         }
-        
-        $promotion_index = reset($promotion_indices);
-        
-        // Mettre à jour les données de la promotion
-        $data['promotions'][$promotion_index] = array_merge(
-            $data['promotions'][$promotion_index],
-            $promotion_data
-        );
-        
-        if ($model['write_data']($data)) {
-            return $data['promotions'][$promotion_index];
-        }
-        
-        return null;
+        $model['write_data']($data);
     },
     
     'toggle_promotion_status' => function(int $promotion_id) use (&$model) {
         $data = $model['read_data']();
         
         // Trouver la promotion à modifier
-        $target_promotion = null;
         $target_index = null;
-        
         foreach ($data['promotions'] as $index => $promotion) {
             if ((int)$promotion['id'] === $promotion_id) {
-                $target_promotion = $promotion;
                 $target_index = $index;
                 break;
             }
@@ -221,14 +209,15 @@ $model = [
         }
         
         // Si la promotion est inactive
-        if ($target_promotion['status'] === Status::INACTIVE->value) {
-            // Désactiver toutes les promotions
-            $data['promotions'] = array_map(function($p) {
-                $p['status'] = Status::INACTIVE->value;
-                return $p;
-            }, $data['promotions']);
+        if ($data['promotions'][$target_index]['status'] === Status::INACTIVE->value) {
+            // Désactiver d'abord toutes les autres promotions
+            foreach ($data['promotions'] as &$promotion) {
+                if ($promotion['id'] !== $promotion_id) {
+                    $promotion['status'] = Status::INACTIVE->value;
+                }
+            }
             
-            // Activer la promotion ciblée
+            // Puis activer la promotion ciblée
             $data['promotions'][$target_index]['status'] = Status::ACTIVE->value;
         } else {
             // Si la promotion est active, la désactiver
@@ -236,11 +225,7 @@ $model = [
         }
         
         // Sauvegarder les modifications
-        if ($model['write_data']($data)) {
-            return $data['promotions'][$target_index];
-        }
-        
-        return null;
+        return $model['write_data']($data);
     },
     
     'search_promotions' => function($search_term) use (&$model) {
@@ -272,37 +257,45 @@ $model = [
         return !empty($filtered_referentiels) ? reset($filtered_referentiels) : null;
     },
     
-    'referentiel_name_exists' => function ($name, $exclude_id = null) use (&$model) {
+    'referentiel_name_exists' => function($name) use (&$model) {
         $data = $model['read_data']();
         
-        // Utiliser array_filter au lieu de foreach
-        $filtered_referentiels = array_filter($data['referentiels'] ?? [], function ($referentiel) use ($name, $exclude_id) {
-            return strtolower($referentiel['name']) === strtolower($name) && ($exclude_id === null || $referentiel['id'] !== $exclude_id);
-        });
-        
-        return !empty($filtered_referentiels);
-    },
-    
-    'create_referentiel' => function ($referentiel_data) use (&$model) {
-        $data = $model['read_data']();
-        
-        $new_referentiel = [
-            'id' => $model['generate_id'](),
-            'name' => $referentiel_data['name'],
-            'description' => $referentiel_data['description'],
-            'image' => $referentiel_data['image'],
-            'capacite' => $referentiel_data['capacite'],
-            'sessions' => $referentiel_data['sessions'],
-            'modules' => []
-        ];
-        
-        $data['referentiels'][] = $new_referentiel;
-        
-        if ($model['write_data']($data)) {
-            return $new_referentiel;
+        foreach ($data['referentiels'] as $referentiel) {
+            if (strtolower($referentiel['name']) === strtolower($name)) {
+                return true;
+            }
         }
         
-        return null;
+        return false;
+    },
+    
+    'create_referentiel' => function(array $referentiel_data) use (&$model) {
+        $data = $model['read_data']();
+
+        // Générer un nouvel ID
+        $max_id = 0;
+        foreach ($data['referentiels'] as $referentiel) {
+            $max_id = max($max_id, (int)$referentiel['id']);
+        }
+
+        $new_id = $max_id + 1;
+
+        // Créer le nouveau référentiel avec l'état "en attente"
+        $new_referentiel = [
+            'id' => (string)$new_id,
+            'name' => $referentiel_data['name'],
+            'description' => $referentiel_data['description'],
+            'capacity' => $referentiel_data['capacity'],
+            'sessions' => $referentiel_data['sessions'],
+            'etat' => 'en attente', // Par défaut, les nouveaux référentiels sont en attente
+            'image' => $referentiel_data['image']
+        ];
+
+        // Ajouter le référentiel aux données
+        $data['referentiels'][] = $new_referentiel;
+
+        // Sauvegarder les données
+        return $model['write_data']($data);
     },
     
     'get_referentiels_by_promotion' => function($promotion_id) use (&$model) {
@@ -369,21 +362,20 @@ $model = [
     'get_current_promotion' => function () use (&$model) {
         $data = $model['read_data']();
         
-        // Utiliser array_filter au lieu de foreach
-        $active_promotions = array_filter($data['promotions'] ?? [], function ($promotion) {
-        
-            return $promotion['status'] === Status::ACTIVE->value;
+        if (!isset($data['promotions'])) {
+            return null;
+        }
+
+        // Filtrer les promotions actives
+        $active_promotions = array_filter($data['promotions'], function ($promotion) {
+            return $promotion['status'] === 'active';
         });
-        
+
         if (empty($active_promotions)) {
             return null;
         }
-        
-        // Trier par date de début (la plus récente d'abord)
-        usort($active_promotions, function ($a, $b) {
-            return strtotime($b['date_debut']) - strtotime($a['date_debut']);
-        });
-        
+
+        // Retourner la première promotion active
         return reset($active_promotions);
     },
     
@@ -396,7 +388,7 @@ $model = [
         
         // Nombre de promotions actives
         $active_promotions = count(array_filter($data['promotions'] ?? [], function ($promotion) {
-            return $promotion['status'] === Enums\ACTIVE;
+            return $promotion['status'] === Status::ACTIVE->value; // Correction ici
         }));
         
         // Récupérer la promotion courante
@@ -433,23 +425,176 @@ $model = [
     'get_apprenants_by_promotion' => function ($promotion_id) use (&$model) {
         $data = $model['read_data']();
         
+        // Si aucun apprenant n'existe dans le JSON, créer quelques exemples
+        if (empty($data['apprenants'])) {
+            $data['apprenants'] = [
+                [
+                    'id' => '1',
+                    'matricule' => 'ODC-2023-0001',
+                    'prenom' => 'John',
+                    'nom' => 'Doe',
+                    'email' => 'john.doe@example.com',
+                    'telephone' => '770000000',
+                    'date_naissance' => '1995-05-15',
+                    'adresse' => 'Dakar, Sénégal',
+                    'photo' => 'assets/images/default-avatar.png',
+                    'referentiel_id' => '1', // Assurez-vous que ce référentiel existe
+                    'statut' => 'Actif',
+                    'promotion_id' => $promotion_id
+                ],
+                [
+                    'id' => '2',
+                    'matricule' => 'ODC-2023-0002',
+                    'prenom' => 'Jane',
+                    'nom' => 'Smith',
+                    'email' => 'jane.smith@example.com',
+                    'telephone' => '770000001',
+                    'date_naissance' => '1997-08-20',
+                    'adresse' => 'Dakar, Sénégal',
+                    'photo' => 'assets/images/default-avatar.png',
+                    'referentiel_id' => '2', // Assurez-vous que ce référentiel existe
+                    'statut' => 'Actif',
+                    'promotion_id' => $promotion_id
+                ]
+            ];
+            
+            // Sauvegarder ces exemples dans le JSON
+            $model['write_data']($data);
+        }
+        
         // Filtrer les apprenants par promotion
         $apprenants = array_filter($data['apprenants'] ?? [], function ($apprenant) use ($promotion_id) {
-            return $apprenant['promotion_id'] === $promotion_id;
+            return isset($apprenant['promotion_id']) && $apprenant['promotion_id'] === $promotion_id;
         });
         
-        return array_values($apprenants);
+        // Si aucun apprenant n'est trouvé pour cette promotion, retourner tous les apprenants
+        if (empty($apprenants) && !empty($data['apprenants'])) {
+            // Associer tous les apprenants à cette promotion
+            foreach ($data['apprenants'] as &$apprenant) {
+                $apprenant['promotion_id'] = $promotion_id;
+            }
+            
+            // Sauvegarder les modifications
+            $model['write_data']($data);
+            
+            return $data['apprenants'];
+        }
+        
+        return array_values($apprenants); // Réindexer le tableau
     },
     
-    'get_apprenant_by_id' => function ($id) use (&$model) {
+    'get_apprenant_by_id' => function ($apprenant_id) use (&$model) {
         $data = $model['read_data']();
         
         // Filtrer les apprenants par ID
-        $filtered_apprenants = array_filter($data['apprenants'] ?? [], function ($apprenant) use ($id) {
-            return $apprenant['id'] === $id;
+        $apprenants = array_filter($data['apprenants'] ?? [], function ($apprenant) use ($apprenant_id) {
+            return $apprenant['id'] === $apprenant_id;
         });
         
-        return !empty($filtered_apprenants) ? reset($filtered_apprenants) : null;
+        return !empty($apprenants) ? reset($apprenants) : null;
+    },
+    
+    'email_exists' => function ($email) use (&$model) {
+        $data = $model['read_data']();
+        
+        // Vérifier si l'email existe déjà
+        foreach ($data['apprenants'] ?? [] as $apprenant) {
+            if (isset($apprenant['email']) && strtolower($apprenant['email']) === strtolower($email)) {
+                return true;
+            }
+        }
+        
+        return false;
+    },
+    
+    'create_apprenant' => function ($apprenant_data) use (&$model) {
+        $data = $model['read_data']();
+        
+        // Ajouter l'apprenant aux données
+        if (!isset($data['apprenants'])) {
+            $data['apprenants'] = [];
+        }
+        
+        $data['apprenants'][] = $apprenant_data;
+        
+        // Mettre à jour la promotion pour ajouter l'apprenant
+        foreach ($data['promotions'] as &$promotion) {
+            if ($promotion['id'] === $apprenant_data['promotion_id']) {
+                if (!isset($promotion['apprenants'])) {
+                    $promotion['apprenants'] = [];
+                }
+                $promotion['apprenants'][] = $apprenant_data['id'];
+                break;
+            }
+        }
+        
+        // Sauvegarder les données
+        return $model['write_data']($data);
+    },
+    
+    'update_apprenant' => function ($apprenant_data) use (&$model) {
+        $data = $model['read_data']();
+        
+        // Trouver l'index de l'apprenant à mettre à jour
+        $apprenant_index = -1;
+        foreach ($data['apprenants'] ?? [] as $index => $apprenant) {
+            if ($apprenant['id'] === $apprenant_data['id']) {
+                $apprenant_index = $index;
+                break;
+            }
+        }
+        
+        if ($apprenant_index === -1) {
+            return false;
+        }
+        
+        // Mettre à jour l'apprenant
+        $data['apprenants'][$apprenant_index] = $apprenant_data;
+        
+        // Sauvegarder les données
+        return $model['write_data']($data);
+    },
+    
+    'delete_apprenant' => function ($apprenant_id) use (&$model) {
+        $data = $model['read_data']();
+        
+        // Récupérer l'apprenant avant de le supprimer
+        $apprenant = null;
+        foreach ($data['apprenants'] ?? [] as $a) {
+            if ($a['id'] === $apprenant_id) {
+                $apprenant = $a;
+                break;
+            }
+        }
+        
+        if (!$apprenant) {
+            return false;
+        }
+        
+        // Supprimer l'apprenant de la promotion
+        foreach ($data['promotions'] as &$promotion) {
+            if ($promotion['id'] === $apprenant['promotion_id']) {
+                if (isset($promotion['apprenants'])) {
+                    $promotion['apprenants'] = array_filter($promotion['apprenants'], function ($id) use ($apprenant_id) {
+                        return $id !== $apprenant_id;
+                    });
+                    // Réindexer le tableau
+                    $promotion['apprenants'] = array_values($promotion['apprenants']);
+                }
+                break;
+            }
+        }
+        
+        // Filtrer les apprenants pour exclure celui à supprimer
+        $data['apprenants'] = array_filter($data['apprenants'] ?? [], function ($a) use ($apprenant_id) {
+            return $a['id'] !== $apprenant_id;
+        });
+        
+        // Réindexer le tableau
+        $data['apprenants'] = array_values($data['apprenants']);
+        
+        // Sauvegarder les données
+        return $model['write_data']($data);
     },
     
     'get_apprenant_by_matricule' => function ($matricule) use (&$model) {
@@ -475,24 +620,94 @@ $model = [
         $data = $model['read_data']();
         
         // Trouver la promotion active
-        $active_promotions = array_filter($data['promotions'], function($promotion) {
+        $active_promotion = $model['get_current_promotion']();
+        
+        // Compter les référentiels de la promotion active
+        $active_promotion_referentiels = 0;
+        if ($active_promotion && isset($active_promotion['referentiels'])) {
+            $active_promotion_referentiels = count($active_promotion['referentiels']);
+        }
+        
+        // Compter les apprenants de la promotion active
+        $active_learners = 0;
+        if ($active_promotion && isset($active_promotion['apprenants'])) {
+            $active_learners = count($active_promotion['apprenants']);
+        }
+        
+        // Calculer les autres statistiques
+        $active_promotions = array_filter($data['promotions'] ?? [], function($promotion) {
             return $promotion['status'] === 'active';
         });
-        $active_promotion = reset($active_promotions);
         
-        // Calculer les statistiques
-        $stats = [
-            'active_learners' => 0,
-            'total_referentials' => count($data['referentiels'] ?? []),
+        return [
+            'active_learners' => $active_learners,
+            'total_referentials' => $active_promotion_referentiels,
             'active_promotions' => count($active_promotions),
             'total_promotions' => count($data['promotions'] ?? [])
         ];
-        
-        // Ajouter le nombre d'apprenants de la promotion active
-        if ($active_promotion) {
-            $stats['active_learners'] = count($active_promotion['apprenants'] ?? []);
+    },
+    'remove_referentiel_from_promo' => function ($promotion_id, $referentiel_id) use (&$model) {
+        $data = $model['read_data']();
+
+        // Trouver la promotion
+        foreach ($data['promotions'] as &$promo) {
+            if ($promo['id'] == $promotion_id) {
+                // Supprimer le référentiel de la liste
+                $promo['referentiels'] = array_values(array_filter($promo['referentiels'], function ($id) use ($referentiel_id) {
+                    return $id != $referentiel_id;
+                }));
+
+                // Sauvegarder les modifications
+                return $model['write_data']($data);
+            }
         }
+
+        return false;
+    },
+    'update_promotion_states' => function () use (&$model) {
+        $data = $model['read_data']();
+        $today = date('Y-m-d');
+
+        foreach ($data['promotions'] as &$promotion) {
+            // Si la date de fin est dépassée, l'état est "terminé"
+            if ($promotion['date_fin'] < $today) {
+                $promotion['etat'] = 'terminé';
+            }
+            // Si la promotion est active et la date de fin n'est pas dépassée, l'état est "en cours"
+            elseif ($promotion['status'] === 'active') {
+                $promotion['etat'] = 'en cours';
+            }
+            // Toutes les autres promotions sont "en attente"
+            else {
+                $promotion['etat'] = 'en attente';
+            }
+        }
+
+        $model['write_data']($data);
+    },
+    'get_referentiel_by_id' => function ($referentiel_id) use (&$model) {
+        $data = $model['read_data']();
         
-        return $stats;
-    }
+        // Filtrer les référentiels par ID
+        $referentiels = array_filter($data['referentiels'] ?? [], function ($referentiel) use ($referentiel_id) {
+            return $referentiel['id'] === $referentiel_id;
+        });
+        
+        return !empty($referentiels) ? reset($referentiels) : null;
+    },
+    'update_referentiel_states' => function () use (&$model) {
+        $data = $model['read_data']();
+
+        foreach ($data['referentiels'] as &$referentiel) {
+            // Si le référentiel est déjà "terminé" ou "en cours", on ne change pas son état
+            if (in_array($referentiel['etat'], ['terminé', 'en cours'])) {
+                continue;
+            }
+
+            // Tous les autres référentiels sont mis en "en attente"
+            $referentiel['etat'] = 'en attente';
+        }
+
+        $model['write_data']($data);
+    },
 ];

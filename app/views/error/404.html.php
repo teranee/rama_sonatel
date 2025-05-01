@@ -1,6 +1,21 @@
-<div style="text-align: center; padding: 40px 20px;">
-    <h1 style="font-size: 72px; color: #e74c3c; margin-bottom: 20px;">404</h1>
-    <h2 style="margin-bottom: 20px; color: #333;">Page non trouvée</h2>
-    <p style="margin-bottom: 30px; color: #666;">La page que vous recherchez n'existe pas ou a été déplacée.</p>
-    <a href="?page=login" style="display: inline-block; background-color: #0E8F7E; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Retour à la page de connexion</a>
-</div>
+<link rel="stylesheet" href="assets/css/error404.css">
+    <div class="error-container">
+        <div class="particles">
+            <?php for($i = 0; $i < 50; $i++): ?>
+                <div class="particle" style="
+                    left: <?= rand(0, 100) ?>%;
+                    top: <?= rand(0, 100) ?>%;
+                    animation-delay: <?= rand(0, 20) / 10 ?>s;"></div>
+            <?php endfor; ?>
+        </div>
+        
+        <h1 class="error-number">404</h1>
+        <h2 class="error-text">Page non trouvée</h2>
+        <p class="error-description">
+            Fi nga dougou bakhoul delloul 
+        </p>
+        <a href="?page=login" class="back-button">
+            Retour à la page de connexion
+        </a>
+    </div>
+

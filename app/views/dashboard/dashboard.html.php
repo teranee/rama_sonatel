@@ -1,49 +1,31 @@
-<!-- Dashboard - Cartes statistiques -->
-<div class="dashboard">
-    <!-- Carte des apprenants -->
-    <div class="stat-card">
-        <div class="card-icon">
-            <span></span>
+<div class="dashboard-container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-content">
+                <h3><?= $stats['active_learners'] ?? 0 ?></h3>
+                <p>Apprenants actifs</p>
+            </div>
         </div>
-        <div class="card-content">
-            <div class="card-value">180</div>
-            <div class="card-label">Apprenants</div>
+
+        <div class="stat-card">
+            <div class="stat-content">
+                <h3><?= $stats['total_referentials'] ?? 0 ?></h3>
+                <p>Total référentiels</p>
+            </div>
         </div>
-    </div>
-    
-    <!-- Carte des référentiels -->
-    <div class="stat-card">
-        <div class="card-icon">
-            <span></span>
+
+        <div class="stat-card">
+            <div class="stat-content">
+                <h3><?= $stats['active_promotions'] ?? 0 ?></h3>
+                <p>Promotions actives</p>
+            </div>
         </div>
-        <div class="card-content">
-            <div class="card-value">5</div>
-            <div class="card-label">Référentiels</div>
-        </div>
-    </div>
-    
-    <!-- Carte des stagiaires -->
-    <div class="stat-card">
-        <div class="card-icon">
-            <span></span>
-        </div>
-        <div class="card-content">
-            <div class="card-value">5</div>
-            <div class="card-label">Stagiaires</div>
-        </div>
-    </div>
-    
-    <!-- Carte des permanents -->
-    <div class="stat-card">
-        <div class="card-icon">
-            <span></span>
-        </div>
-        <div class="card-content">
-            <div class="card-value">13</div>
-            <div class="card-label">Permanent</div>
+
+        <div class="stat-card">
+            <div class="stat-content">
+                <h3><?= $stats['total_promotions'] ?? 0 ?></h3>
+                <p>Total promotions</p>
+            </div>
         </div>
     </div>
 </div>
-
-<!-- Note: Les autres parties du dashboard (graphiques, widgets, etc.) seront chargées 
-           par d'autres pages se

@@ -9,7 +9,7 @@ require_once __DIR__ . '/../controllers/dashboard.controller.php';
 
 use App\Controllers;
 
-// Définition de toutes les routes disponibles avec leur fonction controller associée
+// Définition des routes
 $routes = [
     // Routes pour l'authentification
     'login' => 'App\Controllers\login_page',
@@ -24,19 +24,23 @@ $routes = [
     
     // Routes pour les promotions
     'promotions' => 'App\Controllers\list_promotions',
-    'add-promotion' => 'App\Controllers\add_promotion_form',
-    'add-promotion-process' => 'App\Controllers\add_promotion_process',
-    'toggle-promotion-status' => 'App\Controllers\toggle_promotion_status',
-    'promotion' => 'App\Controllers\promotion_page', // Nouvelle route
+    'add_promotion_form' => 'App\Controllers\add_promotion_form', // Correction du nom de la route
+    'add_promotion' => 'App\Controllers\add_promotion_process',   // Correction du nom de la route
+    'toggle_promotion_status' => 'App\Controllers\toggle_promotion_status',
+    'promotion' => 'App\Controllers\promotion_details',
     
     // Routes pour les référentiels
     'referentiels' => 'App\Controllers\list_referentiels',
-    'all-referentiels' => 'App\Controllers\list_all_referentiels',
+    'all-referentiels' => 'App\Controllers\all_referentiels_form',
     'add-referentiel' => 'App\Controllers\add_referentiel_form',
     'add-referentiel-process' => 'App\Controllers\add_referentiel_process',
     'assign-referentiels' => 'App\Controllers\assign_referentiels_form',
     'assign-referentiels-process' => 'App\Controllers\assign_referentiels_process',
-    
+    'add-to-promo' => 'App\Controllers\add_to_promo',
+    'remove-from-promo' => 'App\Controllers\remove_from_promo',
+    // Autres routes...
+    'manage-promos' => 'App\Controllers\manage_promos',
+    'manage-promos-process' => 'App\Controllers\manage_promos_process',
     // Route par défaut pour le tableau de bord
     'dashboard' => 'App\Controllers\dashboard',
     
@@ -44,7 +48,21 @@ $routes = [
     'forbidden' => 'App\Controllers\forbidden',
     
     // Route par défaut (page non trouvée)
-    '404' => 'App\Controllers\not_found'
+    '404' => 'App\Controllers\not_found',
+    'test_upload' => 'App\Controllers\test_upload',
+    'test_upload_process' => 'App\Controllers\test_upload_process',
+    // Ajouter ces routes dans le tableau des routes
+    'apprenants' => 'App\Controllers\list_apprenants',
+    'add-apprenant-form' => 'App\Controllers\add_apprenant_form',
+    'add-apprenant' => 'App\Controllers\add_apprenant',
+    'view-apprenant' => 'App\Controllers\view_apprenant',
+    'edit-apprenant-form' => 'App\Controllers\edit_apprenant_form',
+    'edit-apprenant' => 'App\Controllers\edit_apprenant',
+    'delete-apprenant' => 'App\Controllers\delete_apprenant',
+    'export-apprenants' => 'App\Controllers\export_apprenants',
+    // Routes pour l'exportation
+    'export-apprenants-pdf' => 'App\Controllers\export_apprenants_pdf',
+    'export-apprenants-excel' => 'App\Controllers\export_apprenants_excel',
 ];
 
 /**
@@ -58,15 +76,12 @@ function route($page) {
     
     // Vérifie si la route demandée existe
     $route_exists = array_key_exists($page, $routes);
-
-    if ($page === 'all-referentiels') {
-        \App\Controllers\list_all_referentiels();
-        return;
+    
+    // Si la route n'existe pas, renvoyer vers la page 404
+    if (!$route_exists) {
+        return call_user_func($routes['404']);
     }
     
-    // Obtient la fonction à exécuter (route demandée ou 404 si non trouvée)
-    $controller_function = $route_exists ? $routes[$page] : $routes['404'];
-    
     // Exécute la fonction contrôleur
-    return call_user_func($controller_function);
+    return call_user_func($routes[$page]);
 }

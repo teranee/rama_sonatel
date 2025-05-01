@@ -4,33 +4,43 @@ namespace App\Controllers;
 
 require_once __DIR__ . '/../enums/path.enum.php';
 require_once __DIR__ . '/../services/session.service.php';
+require_once __DIR__ . '/../models/model.php'; // Ajout du model
 
 use App\Enums;
 use App\Services;
 
 // Fonctions communes à tous les contrôleurs
-function render($layout, $view, $data = []) {
-    global $session_services;
+function render($layout, $template, $data = []) {
+    global $model;
+    
+    // Vérifier si $model est défini
+    if (isset($model) && is_array($model) && isset($model['get_current_promotion'])) {
+        $current_promotion = $model['get_current_promotion']();
+        $data['current_promotion'] = $current_promotion;
+    }
     
     // Extraction des données pour les rendre disponibles dans la vue
     extract($data);
     
-    // Récupération du message flash s'il existe
-    $flash = $session_services['get_flash_message']();
-    
-    // Démarrage de la mise en tampon pour stocker la vue
+    // Capturer le contenu du template
     ob_start();
-    require_once __DIR__ . '/../views/' . $view;
+    require_once __DIR__ . '/../views/' . $template;
     $content = ob_get_clean();
     
-    // Chargement du layout avec le contenu de la vue
+    // Rendre le layout avec le contenu capturé
     require_once __DIR__ . '/../views/layout/' . $layout;
 }
 
 // Redirection vers une autre page
 function redirect($url) {
-    header("Location: $url");
-    exit();
+    if (!headers_sent()) {
+        header("Location: $url");
+        exit();
+    } else {
+        echo '<script>window.location.href="'.$url.'";</script>';
+        echo '<noscript><meta http-equiv="refresh" content="0;url='.$url.'" /></noscript>';
+        exit();
+    }
 }
 
 // Vérification si l'utilisateur est connecté

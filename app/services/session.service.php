@@ -49,5 +49,16 @@ $session_services = [
             unset($_SESSION['flash']);
         }
         return $flash;
+    },
+    'set_flash_message' => function ($type, $message) {
+        $_SESSION['flash_messages'][$type] = $message;
+    },
+    'get_flash_message' => function ($type) {
+        if (isset($_SESSION['flash_messages'][$type])) {
+            $message = $_SESSION['flash_messages'][$type];
+            unset($_SESSION['flash_messages'][$type]);
+            return $message;
+        }
+        return null;
     }
 ];

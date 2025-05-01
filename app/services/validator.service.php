@@ -29,8 +29,18 @@ $validator_services = [
         $allowed_types = ['image/jpeg', 'image/png'];
         $max_size = 2 * 1024 * 1024; // 2MB en octets
         
-        $file_info = getimagesize($file['tmp_name']);
-        $file_type = $file_info ? $file_info['mime'] : '';
+        // Vérifier si le fichier existe
+        if (!file_exists($file['tmp_name'])) {
+            return false;
+        }
+        
+        // Obtenir les informations sur l'image
+        $file_info = @getimagesize($file['tmp_name']);
+        if (!$file_info) {
+            return false;
+        }
+        
+        $file_type = $file_info['mime'];
         
         return in_array($file_type, $allowed_types) && $file['size'] <= $max_size;
     },
@@ -102,7 +112,7 @@ $validator_services = [
             }
         }
         
-        // Validation de l'image
+       /*  // Validation de l'image
         if (empty($files['image']['name'])) {
             $errors[] = 'L\'image de la promotion est requise';
         } else {
@@ -114,7 +124,7 @@ $validator_services = [
             if ($files['image']['size'] > 2 * 1024 * 1024) { // 2MB
                 $errors[] = 'La taille de l\'image ne doit pas dépasser 2MB';
             }
-        }
+        } */
         
         // Validation des référentiels (au moins un requis)
         if (empty($post_data['referentiels'])) {
@@ -125,5 +135,66 @@ $validator_services = [
             'valid' => empty($errors),
             'errors' => $errors
         ];
+    },
+    
+    'is_valid_date' => function($date_string) {
+        // Vérifier le format JJ/MM/AAAA
+        if (!preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $date_string, $matches)) {
+            return false;
+        }
+        
+        $day = (int)$matches[1];
+        $month = (int)$matches[2];
+        $year = (int)$matches[3];
+        
+        // Vérifier si la date est valide
+        return checkdate($month, $day, $year);
+    },
+
+    'is_date_after' => function($date1, $date2) {
+        // Convertir les dates au format JJ/MM/AAAA en timestamps
+        if (!preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $date1, $matches1)) {
+            return false;
+        }
+        
+        if (!preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $date2, $matches2)) {
+            return false;
+        }
+        
+        $day1 = (int)$matches1[1];
+        $month1 = (int)$matches1[2];
+        $year1 = (int)$matches1[3];
+        
+        $day2 = (int)$matches2[1];
+        $month2 = (int)$matches2[2];
+        $year2 = (int)$matches2[3];
+        
+        $timestamp1 = mktime(0, 0, 0, $month1, $day1, $year1);
+        $timestamp2 = mktime(0, 0, 0, $month2, $day2, $year2);
+        
+        // Vérifier si date1 est après date2
+        return $timestamp1 > $timestamp2;
+    },
+
+    'convert_date_to_db_format' => function($date_string) {
+        // Convertir JJ/MM/AAAA en AAAA-MM-JJ pour la base de données
+        if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $date_string, $matches)) {
+            $day = $matches[1];
+            $month = $matches[2];
+            $year = $matches[3];
+            return "$year-$month-$day";
+        }
+        return $date_string;
+    },
+
+    'convert_date_from_db_format' => function($date_string) {
+        // Convertir AAAA-MM-JJ en JJ/MM/AAAA pour l'affichage
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date_string, $matches)) {
+            $year = $matches[1];
+            $month = $matches[2];
+            $day = $matches[3];
+            return "$day/$month/$year";
+        }
+        return $date_string;
     }
 ];

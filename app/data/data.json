@@ -3,25 +3,31 @@
         {
             "id": "1",
             "name": "Admin",
-            "email": "admin@odc.sn",
-            "password": "passer123",
+            "email": "rama-admin@odc.sn",
+            "password": "passer",
             "profile": "Admin"
         }
     ],
     "promotions": [
         {
             "id": 1,
-            "name": "Promo 1 Dev Web",
-            "status": "active",
-            "image": "cloud.jpg",
+            "name": "Promo 1 Dev Web\/mobile",
+            "status": "inactive",
+            "etat": "termin\u00e9",
+            "image": "dev-web.png",
             "date_debut": "2024-01-01",
             "date_fin": "2024-12-31",
             "referentiels": [
                 1,
-                3,
                 "68055a4959120",
                 "680559b417dab",
-                "680554ece9556"
+                "680554ece9556",
+                "68055b45eb279",
+                "4",
+                "680551196d5ac",
+                "5",
+                "9",
+                "2"
             ],
             "apprenants": [
                 {
@@ -31,34 +37,19 @@
                 {
                     "id": 2,
                     "name": "Jane Smith"
-                }
-            ]
-        },
-        {
-            "id": 2,
-            "name": "Promo 1 Data",
-            "status": "inactive",
-            "image": "cloud1.jpg",
-            "date_debut": "2024-02-01",
-            "date_fin": "2024-12-31",
-            "referentiels": [
-                2
-            ],
-            "apprenants": [
+                },
                 {
                     "id": 3,
                     "name": "Alice Johnson"
-                }
-            ]
-        },
-        {
-            "id": 3,
-            "name": "Promo 3 R\u00e9ferents Digital",
-            "status": "inactive",
-            "image": "cloud.jpg",
-            "date_debut": "2024-03-01",
-            "date_fin": "2025-02-28",
-            "apprenants": [
+                },
+                {
+                    "id": 4,
+                    "name": "Bob Brown"
+                },
+                {
+                    "id": 5,
+                    "name": "Charlie Green"
+                },
                 {
                     "id": 6,
                     "name": "David Lee"
@@ -74,18 +65,104 @@
             ]
         },
         {
+            "id": 2,
+            "name": "Promo 1 Data",
+            "status": "inactive",
+            "etat": "termin\u00e9",
+            "image": "cloud1.jpg",
+            "date_debut": "2024-02-01",
+            "date_fin": "2024-12-31",
+            "referentiels": [
+                "680551196d5ac",
+                "2",
+                "4",
+                "7",
+                "1",
+                "5",
+                "6"
+            ],
+            "apprenants": [
+                {
+                    "id": 3,
+                    "name": "Alice Johnson"
+                },
+                {
+                    "id": 4,
+                    "name": "Bob Brown"
+                },
+                {
+                    "id": 5,
+                    "name": "Charlie Green"
+                },
+                {
+                    "id": 6,
+                    "name": "David Lee"
+                },
+                {
+                    "id": 7,
+                    "name": "Emma Davis"
+                },
+                {
+                    "id": 8,
+                    "name": "Frank Miller"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Promo 3 R\u00e9ferents Digital",
+            "status": "inactive",
+            "etat": "termin\u00e9",
+            "image": "cloud.jpg",
+            "date_debut": "2024-03-01",
+            "date_fin": "2025-02-28",
+            "apprenants": [
+                {
+                    "id": 6,
+                    "name": "David Lee"
+                },
+                {
+                    "id": 7,
+                    "name": "Emma Davis"
+                },
+                {
+                    "id": 8,
+                    "name": "Frank Miller"
+                },
+                {
+                    "id": 9,
+                    "name": "Grace Wilson"
+                },
+                {
+                    "id": 10,
+                    "name": "Henry Ford"
+                }
+            ],
+            "referentiels": {
+                "0": "3",
+                "1": "1",
+                "3": "4"
+            }
+        },
+        {
             "id": 4,
             "name": "Promo 4 DevOps",
             "status": "inactive",
+            "etat": "termin\u00e9",
             "image": "cloud.jpg",
             "date_debut": "2023-11-01",
             "date_fin": "2024-10-31",
-            "apprenants": []
+            "apprenants": [],
+            "referentiels": [
+                "2",
+                "4"
+            ]
         },
         {
             "id": 5,
             "name": "Promo 5 IA",
             "status": "inactive",
+            "etat": "termin\u00e9",
             "image": "cloud.jpg",
             "date_debut": "2024-02-01",
             "date_fin": "2025-01-31",
@@ -107,24 +184,7 @@
             "id": 5,
             "name": "Promo 7 IA",
             "status": "inactive",
-            "image": "cloud.jpg",
-            "date_debut": "2024-02-01",
-            "date_fin": "2025-01-31",
-            "apprenants": [
-                {
-                    "id": 9,
-                    "name": "Grace Wilson"
-                },
-                {
-                    "id": 10,
-                    "name": "Henry Ford"
-                }
-            ]
-        },
-        {
-            "id": 5,
-            "name": "Promo 9 IA",
-            "status": "inactive",
+            "etat": "termin\u00e9",
             "image": "cloud.jpg",
             "date_debut": "2024-02-01",
             "date_fin": "2025-01-31",
@@ -145,6 +205,7 @@
             "date_fin": "2025-05-02",
             "image": "cloud.jpg",
             "status": "inactive",
+            "etat": "en attente",
             "apprenants": [],
             "id": 6
         },
@@ -154,6 +215,7 @@
             "date_fin": "2025-04-22",
             "image": "cloud.jpg",
             "status": "inactive",
+            "etat": "en attente",
             "apprenants": [],
             "id": 7,
             "referentiels": [
@@ -167,24 +229,17 @@
             "date_fin": "2025-04-22",
             "image": "cloud.jpg",
             "status": "inactive",
+            "etat": "en attente",
             "apprenants": [],
             "id": 8
         },
         {
-            "name": "promotion 2025",
-            "date_debut": "2025-04-20",
-            "date_fin": "2025-04-24",
-            "image": "cloud.jpg",
-            "status": "inactive",
-            "apprenants": [],
-            "id": 9
-        },
-        {
-            "name": "promotion 2028",
+            "name": "promo 2028",
             "date_debut": "2025-04-20",
             "date_fin": "2025-04-30",
             "image": "cloud.jpg",
             "status": "inactive",
+            "etat": "en attente",
             "apprenants": [],
             "id": 10
         },
@@ -194,35 +249,29 @@
             "date_fin": "2025-04-27",
             "image": "cloud.jpg",
             "status": "inactive",
+            "etat": "en attente",
             "apprenants": [],
             "id": 11
         },
         {
-            "name": "Abdoulaye",
-            "date_debut": "2025-04-11",
-            "date_fin": "2025-04-23",
+            "name": "promo 2026",
+            "date_debut": "2025-04-20",
+            "date_fin": "2025-04-30",
             "image": "cloud.jpg",
             "status": "inactive",
+            "etat": "en attente",
             "apprenants": [],
             "id": 12
         },
         {
-            "name": "Abdoulaye Diallo",
+            "name": "promo 2027",
             "date_debut": "2025-04-20",
-            "date_fin": "2025-04-23",
-            "image": "cloud.jpg",
-            "status": "inactive",
-            "apprenants": [],
-            "id": 13
-        },
-        {
-            "name": "promotion 2027",
-            "date_debut": "2025-04-04",
             "date_fin": "2025-04-30",
             "image": "cloud.jpg",
             "status": "inactive",
+            "etat": "en attente",
             "apprenants": [],
-            "id": 14
+            "id": 13
         },
         {
             "name": "Promo 2028",
@@ -230,126 +279,304 @@
             "date_fin": "2025-04-26",
             "image": "6805ad4f54c6f.png",
             "status": "inactive",
+            "etat": "en attente",
             "apprenants": [],
-            "id": 15
+            "id": 14
+        },
+        {
+            "name": "rama gueye",
+            "date_debut": "21 22 22",
+            "date_fin": "20 22 22",
+            "status": "inactive",
+            "etat": "en attente",
+            "image": "6805ad4f54c6f.png",
+            "apprenants": [],
+            "id": 1745499124
+        },
+        {
+            "name": "rama gueye",
+            "date_debut": "21 22 22",
+            "date_fin": "20 22 22",
+            "status": "inactive",
+            "etat": "en attente",
+            "image": "6805ad4f54c6f.png",
+            "apprenants": [],
+            "id": 1745499124
+        },
+        {
+            "name": "ramatou gueye",
+            "date_debut": "2000-10-21",
+            "date_fin": "2000-12-21",
+            "image": "680bcdfd9aef6.jpeg",
+            "status": "inactive",
+            "etat": "termin\u00e9",
+            "apprenants": [],
+            "referentiels": [
+                "2"
+            ],
+            "id": 1745499125
+        },
+        {
+            "name": "ramatoulaye Gueye",
+            "date_debut": "2000-10-21",
+            "date_fin": "2000-12-21",
+            "image": "680bce3aa7719.jpeg",
+            "status": "inactive",
+            "etat": "termin\u00e9",
+            "apprenants": [],
+            "referentiels": [
+                "2"
+            ],
+            "id": 1745499126
+        },
+        {
+            "name": "amy colle",
+            "date_debut": "2000-10-21",
+            "date_fin": "2002-12-21",
+            "image": "680bd7885e88d.jpeg",
+            "status": "inactive",
+            "etat": "termin\u00e9",
+            "apprenants": [],
+            "referentiels": [
+                "2",
+                "4"
+            ],
+            "id": 1745499127
+        },
+        {
+            "name": "paul",
+            "date_debut": "2000-10-21",
+            "date_fin": "2002-12-21",
+            "image": "680bd7885e88d.jpeg",
+            "status": "inactive",
+            "etat": "termin\u00e9",
+            "apprenants": [],
+            "referentiels": [
+                "2",
+                "4"
+            ],
+            "id": 1745499128
+        },
+        {
+            "name": "bismillah",
+            "date_debut": "2000-10-21",
+            "date_fin": "2002-12-31",
+            "image": "680bcdfd9aef6.jpeg",
+            "status": "active",
+            "etat": "en cours",
+            "apprenants": [],
+            "referentiels": [
+                "1",
+                "3",
+                "4",
+                "6"
+            ],
+            "id": 1745499131
+        },
+        {
+            "name": "promo 20 g\u00e9nie inf ",
+            "date_debut": "2004-02-10",
+            "date_fin": "2025-02-10",
+            "image": "680bcdfd9aef6.jpeg",
+            "status": "inactive",
+            "etat": "en attente",
+            "apprenants": [],
+            "referentiels": [
+                "2",
+                "4"
+            ],
+            "id": 1745499132
+        },
+        {
+            "name": "rama",
+            "date_debut": "2000-10-21",
+            "date_fin": "2026-12-31",
+            "image": "680bcdfd9aef6.jpeg",
+            "status": "inactive",
+            "etat": "en attente",
+            "apprenants": [],
+            "referentiels": [
+                "3",
+                "6",
+                "8"
+            ],
+            "id": 1745499133
+        },
+        {
+            "name": "bismi",
+            "date_debut": "2000-10-21",
+            "date_fin": "2002-12-31",
+            "image": "6811a3908ac93.jpeg",
+            "status": "inactive",
+            "apprenants": [],
+            "referentiels": [
+                "2",
+                "4"
+            ],
+            "id": "6811a3908ae3f"
+        },
+        {
+            "name": "ramaa",
+            "date_debut": "2000-10-21",
+            "date_fin": "2002-12-31",
+            "image": "6811a3e9e740c.jpeg",
+            "status": "inactive",
+            "apprenants": [],
+            "referentiels": [
+                "2"
+            ],
+            "id": "6811a3e9e74c7"
+        },
+        {
+            "name": "gaming",
+            "date_debut": "2000-10-21",
+            "date_fin": "2002-12-21",
+            "image": "6811ac7e2f7dd.jpeg",
+            "status": "inactive",
+            "apprenants": [],
+            "referentiels": [
+                "4",
+                "7",
+                "8"
+            ],
+            "id": "6811ac7e2f88f"
+        },
+        {
+            "name": "awa",
+            "date_debut": "2000-10-21",
+            "date_fin": "2000-12-31",
+            "image": "6811d765c4c5a.jpeg",
+            "status": "inactive",
+            "apprenants": [],
+            "referentiels": [
+                "2",
+                "6"
+            ],
+            "id": "6811d765c4de0"
         }
     ],
     "referentiels": [
         {
             "id": "1",
-            "name": "Dev Web",
+            "name": "Cybers\u00e9curit\u00e9",
             "description": "Formation d\u00e9veloppement web",
-            "image": "assets\/images\/referentiels\/dev-web.jpg",
+            "image": "assets\/images\/1.jpeg",
             "modules": []
         },
         {
             "id": 2,
             "name": "R\u00e9f\u00e9rentiel Data",
             "description": "Science des donn\u00e9es et IA",
+            "image": "assets\/images\/2.jpeg",
             "status": "active"
         },
         {
             "id": 3,
             "name": "R\u00e9f\u00e9rentiel DevOps",
             "description": "Administration syst\u00e8me et d\u00e9ploiement",
+            "image": "assets\/images\/3.jpeg",
             "status": "active"
         },
         {
             "id": 4,
             "name": "R\u00e9f\u00e9rentiel Mobile",
             "description": "D\u00e9veloppement d'applications mobiles",
+            "image": "assets\/images\/4.jpeg",
             "status": "active"
         },
         {
-            "id": "680551196d5ac",
-            "name": "Dev Data",
+            "id": 5,
+            "name": "Referent digital",
             "description": "la science ",
-            "image": "assets\/images\/default-referentiel.jpg",
+            "image": "assets\/images\/5.jpeg",
             "capacite": 30,
             "sessions": 10,
             "modules": []
         },
         {
-            "id": "68055255052f5",
-            "name": "nfj",
-            "description": "chc",
-            "image": "assets\/images\/default-referentiel.jpg",
+            "id": 6,
+            "name": "AWS",
+            "description": "the cloud computer never lost",
+            "image": "assets\/images\/demon1.jpeg",
             "capacite": 30,
             "sessions": 10,
             "modules": []
         },
         {
-            "id": "680552ef31e03",
-            "name": "sbsdh",
-            "description": "cjdj",
-            "image": "assets\/images\/default-referentiel.jpg",
+            "id": 7,
+            "name": "R\u00e9f\u00e9rentiel IA",
+            "description": "Intelligence artificielle",
+            "image": "assets\/images\/1.jpeg",
             "capacite": 30,
             "sessions": 10,
             "modules": []
         },
         {
-            "id": "680553b967e8b",
-            "name": "dev web",
-            "description": "la science de ns  jour",
-            "image": "assets\/images\/default-referentiel.jpg",
+            "id": 8,
+            "name": "R\u00e9f\u00e9rentiel Cloud",
+            "description": "Cloud computing",
+            "image": "assets\/images\/2.jpeg",
             "capacite": 30,
             "sessions": 10,
             "modules": []
         },
         {
-            "id": "680554ece9556",
-            "name": "dev ref",
-            "description": "xx",
-            "image": "assets\/images\/default-referentiel.jpg",
-            "capacite": 30,
-            "sessions": 10,
-            "modules": []
+            "id": "9",
+            "name": "hackeuse",
+            "description": "new technologie , new life",
+            "image": "assets\/images\/referentiels\/68104ca0230f7_dice_master.jpeg"
         },
         {
-            "id": "680557b9a0a57",
-            "name": "xchch",
-            "description": "nchc",
-            "image": "assets\/images\/default-referentiel.jpg",
-            "capacite": 30,
-            "sessions": 10,
-            "modules": []
-        },
-        {
-            "id": "680559b417dab",
-            "name": "aws",
-            "description": "la science ",
-            "image": "assets\/images\/default-referentiel.jpg",
-            "capacite": 30,
-            "sessions": 10,
-            "modules": []
-        },
-        {
-            "id": "68055a4959120",
-            "name": "dndndhhh",
-            "description": "la science ",
-            "image": "assets\/images\/default-referentiel.jpg",
-            "capacite": 30,
-            "sessions": 10,
-            "modules": []
-        },
-        {
-            "id": "68055a7e7d4e3",
-            "name": "cloud",
-            "description": "xdhdh",
-            "image": "assets\/images\/default-referentiel.jpg",
-            "capacite": 30,
-            "sessions": 10,
-            "modules": []
-        },
-        {
-            "id": "68055b45eb279",
-            "name": "cloud aws",
-            "description": "la science de nos jour",
-            "image": "assets\/images\/default-referentiel.jpg",
-            "capacite": 30,
-            "sessions": 10,
-            "modules": []
+            "id": "10",
+            "name": "rama gueye",
+            "description": "llllllllllllllllllll mmmmmmmmmmmmmmmmmm",
+            "capacity": 3,
+            "sessions": 3,
+            "image": "assets\/images\/referentiels\/68105007c2d75_demon1.jpeg"
         }
     ],
-    "apprenants": []
+    "apprenants": [
+        {
+            "id": "1",
+            "matricule": "ODC-2025-0001",
+            "prenom": "John",
+            "nom": "Doe",
+            "email": "john.doe@example.com",
+            "telephone": "771234567",
+            "date_naissance": "1995-05-15",
+            "adresse": "Dakar, S\u00e9n\u00e9gal",
+            "photo": "assets\/images\/referentiels\/68105007c2d75_demon1.jpeg",
+            "referentiel": "DEV WEB\/MOBILE",
+            "statut": "Actif",
+            "promotion_id": 1745499131
+        },
+        {
+            "id": "2",
+            "matricule": "ODC-2025-0002",
+            "prenom": "Jane",
+            "nom": "Smith",
+            "email": "jane.smith@example.com",
+            "telephone": "778765432",
+            "date_naissance": "1998-03-22",
+            "adresse": "Thi\u00e8s, S\u00e9n\u00e9gal",
+            "photo": "assets\/images\/referentiels\/68105007c2d75_demon1.jpeg",
+            "referentiel": "DATA",
+            "statut": "Actif",
+            "promotion_id": 1745499131
+        },
+        {
+            "id": "3",
+            "matricule": "ODC-2025-0003",
+            "prenom": "Alice",
+            "nom": "Johnson",
+            "email": "alice.johnson@example.com",
+            "telephone": "776543210",
+            "date_naissance": "1997-07-10",
+            "adresse": "Saint-Louis, S\u00e9n\u00e9gal",
+            "photo": "assets\/images\/referentiels\/68105007c2d75_demon1.jpeg",
+            "referentiel": "REF DIG",
+            "statut": "Renvoy\u00e9",
+            "promotion_id": 1745499131
+        }
+    ]
 }

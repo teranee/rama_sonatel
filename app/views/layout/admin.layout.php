@@ -9,7 +9,12 @@
     <link rel="stylesheet" href="assets/css/modal.css">
     <link rel="stylesheet" href="assets/css/modal-form.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" /></head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Permettre l'inclusion de CSS spécifiques à chaque page -->
+    <?php if (isset($additional_css)): ?>
+        <?= $additional_css ?>
+    <?php endif; ?>
+</head>
 <body>
     <div class="app-container">
         <!-- Sidebar / Menu latéral -->
@@ -21,7 +26,13 @@
                         
                     </div>
                 </div>
-                <p class="promotion">Promotion - 2025</p>
+                <div class="promotion">
+                    <?php 
+                    global $model;
+                    $current_promotion = $model['get_current_promotion']();
+                    echo $current_promotion ? htmlspecialchars($current_promotion['name']) : 'Aucune promotion active';
+                    ?>
+                </div>
             </div>
             
             <!-- Menu de navigation -->
@@ -36,19 +47,19 @@
                     <li class="<?= isset($active_menu) && $active_menu === 'promotions' ? 'active' : '' ?>">
                         <a href="?page=promotions">
                             <span class="icon"></span>
-                            <span>Promotions</span>
+                            <span>Gestion des promotions</span>
                         </a>
                     </li>
                     <li class="<?= isset($active_menu) && $active_menu === 'referentiels' ? 'active' : '' ?>">
                         <a href="?page=referentiels">
                             <span class="icon"></span>
-                            <span>Référentiels</span>
+                            <span>Gestion des référentiels</span>
                         </a>
                     </li>
                     <li class="<?= isset($active_menu) && $active_menu === 'apprenants' ? 'active' : '' ?>">
                         <a href="?page=apprenants">
                             <span class="icon"></span>
-                            <span>Apprenants</span>
+                            <span>Gestion des apprenants</span>
                         </a>
                     </li>
                     <li class="<?= isset($active_menu) && $active_menu === 'presences' ? 'active' : '' ?>">
@@ -96,16 +107,16 @@
                             <span class="user-name"><?= isset($user['name']) ? $user['name'] : 'Utilisateur' ?></span>
                             <span class="user-role"><?= isset($user['profile']) ? $user['profile'] : 'Invité' ?></span>
                         </div>
-                        <!-- <div class="avatar">
+                         <div class="avatar">
                             <img src="assets/images/avatar.png" alt="Avatar">
-                        </div> -->
-                        <!-- <div class="dropdown-menu">
+                        </div> 
+                       <div class="dropdown-menu">
                             <ul>
                                 <li><a href="?page=profile">Profil</a></li>
                                 <li><a href="?page=change-password">Changer mot de passe</a></li>
                                 <li><a href="?page=logout">Déconnexion</a></li>
                             </ul>
-                        </div> -->
+                        </div> 
 
                         
                     </div>
@@ -120,9 +131,9 @@
             <?php endif; ?>
             
             <!-- Contenu de la page -->
-            <div class="page-content">
-                <?= $content ?>
-            </div>
+            <main>
+                <?php echo $content; ?>
+            </main>
         </div>
     </div>
 </body>

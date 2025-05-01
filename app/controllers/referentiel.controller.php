@@ -19,195 +19,237 @@ use Exception; // Ajoutez cette ligne
 // Affichage de la liste des référentiels de la promotion en cours
 function list_referentiels() {
     global $model, $session_services;
-    
-    try {
-        // Vérifier l'authentification
-        $user = $session_services['get_current_user']();
-        if (!$user || !in_array($user['profile'], ['Admin', 'Attache'])) {
-            redirect('?page=forbidden');
-            return;
-        }
-        
-        // Récupérer la promotion courante
-        $current_promotion = $model['get_current_promotion']();
-        
-        // Si aucune promotion n'est active
-        if (!$current_promotion) {
-            $session_services['set_flash_message']('info', 'Aucune promotion active');
-            redirect('?page=promotions');
-            return;
-        }
-        
-        // Récupérer uniquement les référentiels de la promotion courante
-        $referentiels = $model['get_referentiels_by_promotion']($current_promotion['id']);
-        
-        render('admin.layout.php', 'referentiel/list.html.php', [
-            'user' => $user,
-            'referentiels' => $referentiels,
-            'current_promotion' => $current_promotion
-        ]);
-        
-    } catch (Exception $e) {
-        $session_services['set_flash_message']('danger', 'Une erreur est survenue');
-        redirect('?page=dashboard');
+
+    // Vérifier l'authentification
+    $user = $session_services['get_current_user']();
+    if (!$user) {
+        redirect('?page=login');
+        return;
     }
+
+    // Récupérer la promotion courante
+    $current_promotion = $model['get_current_promotion']();
+
+    // Vérifier si une promotion est active
+    if (!$current_promotion) {
+        $session_services['set_flash_message']('info', 'Aucune promotion active');
+        redirect('?page=promotions');
+        return;
+    }
+
+    // Récupérer les référentiels
+    $referentiels = $model['get_referentiels_by_promotion']($current_promotion['id']);
+
+    // Filtrer les référentiels selon la recherche
+    $search = $_GET['search'] ?? '';
+    if (!empty($search)) {
+        $referentiels = array_filter($referentiels, function ($ref) use ($search) {
+            return stripos($ref['name'], $search) !== false || 
+                   stripos($ref['description'], $search) !== false;
+        });
+    }
+
+    // Préparer les données pour la vue
+    $data = [
+        'current_promotion' => $current_promotion,
+        'referentiels' => $referentiels,
+        'search' => $search
+    ];
+
+    // Charger la vue
+    render('admin.layout.php', 'referentiel/list.html.php', $data);
 }
 
 // Affichage de la liste de tous les référentiels
-function list_all_referentiels() {
-    global $model, $session_services;
-    
-    // Vérification des droits d'accès (Admin uniquement)
-    $user = check_profile(Enums\ADMIN);
-    
+function all_referentiels_form() {
+    global $model;
+
     // Récupération de tous les référentiels
-    $referentiels = $model['get_all_referentiels']();
-    
-    // Filtrage des référentiels selon le critère de recherche
-    $search = $_GET['search'] ?? '';
-    if (!empty($search)) {
-        $referentiels = array_filter($referentiels, function ($referentiel) use ($search) {
-            return stripos($referentiel['name'], $search) !== false;
-        });
-    }
-    
+    $all_referentiels = $model['get_all_referentiels']();
+
     // Pagination
     $page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
-    $limit = 10;
-    $total = count($referentiels);
+    $limit = 6; // Nombre de cartes par page
+    $total = count($all_referentiels);
     $pages = ceil($total / $limit);
     $offset = ($page - 1) * $limit;
-    
+
     // Limiter les résultats pour la page courante
-    $referentiels = array_slice($referentiels, $offset, $limit);
-    
+    $referentiels = array_slice($all_referentiels, $offset, $limit);
+
     // Affichage de la vue
     render('admin.layout.php', 'referentiel/list-all.html.php', [
-        'user' => $user,
         'referentiels' => $referentiels,
-        'search' => $search,
         'page' => $page,
         'pages' => $pages,
         'total' => $total
     ]);
 }
 
-// Affichage du formulaire d'ajout d'un référentiel
-function add_referentiel_form() {
-    global $model;
+// Affichage du formulaire de création de référentiel
+function create_referentiel() {
+    global $model, $session_services;
     
-    // Vérification des droits d'accès (Admin uniquement)
-    $user = check_profile(Enums\ADMIN);
+    // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+    $user = check_profile(\App\Enums\ADMIN);
     
-    // Affichage de la vue
-    render('admin.layout.php', 'referentiel/add.html.php', [
-        'user' => $user
+    // Afficher le formulaire
+    render('admin.layout.php', 'referentiel/create_referentiel.html.php', [
+        'user' => $user,
+        'active_menu' => 'referentiels'
     ]);
 }
 
-// Traitement de l'ajout d'un référentiel
-function add_referentiel_process() {
-    global $model, $validator_services, $session_services;
+// Traitement du formulaire de création de référentiel
+function save_referentiel() {
+    global $model, $session_services, $validator_services, $file_services;
     
-    // Vérification des droits d'accès (Admin uniquement)
-    $user = check_profile(Enums\ADMIN);
+    // Vérifier si l'utilisateur est connecté et a les droits d'administrateur
+    $user = check_profile(\App\Enums\ADMIN);
     
     // Récupération des données du formulaire
-    $name = $_POST['referentiel_name'] ?? '';
-    $description = $_POST['referentiel_details'] ?? '';
-    $promotion = $_POST['promotion'] ?? '';
+    $name = $_POST['name'] ?? '';
+    $description = $_POST['description'] ?? '';
+    $capacity = $_POST['capacity'] ?? '';
+    $sessions = $_POST['sessions'] ?? '';
     
-    // Validation des données essentielles
+    // Validation des données
     $errors = [];
     
-    if ($validator_services['is_empty']($name)) {
+    // Validation du nom
+    if (empty(trim($name))) {
         $errors['name'] = 'Le nom du référentiel est obligatoire';
     } elseif ($model['referentiel_name_exists']($name)) {
-        $errors['name'] = 'Un référentiel avec ce nom existe déjà';
+        $errors['name'] = 'Ce nom de référentiel existe déjà';
     }
     
-    if ($validator_services['is_empty']($description)) {
+    // Validation de la description
+    if (empty(trim($description))) {
         $errors['description'] = 'La description est obligatoire';
     }
     
-    // S'il y a des erreurs, affichage du formulaire avec les erreurs
+    // Validation de la capacité
+    if (empty($capacity)) {
+        $errors['capacity'] = 'La capacité est obligatoire';
+    } elseif (!is_numeric($capacity) || $capacity < 1) {
+        $errors['capacity'] = 'La capacité doit être un nombre positif';
+    }
+    
+    // Validation du nombre de sessions
+    if (empty($sessions)) {
+        $errors['sessions'] = 'Le nombre de sessions est obligatoire';
+    } elseif (!is_numeric($sessions) || $sessions < 1) {
+        $errors['sessions'] = 'Le nombre de sessions doit être un nombre positif';
+    }
+    
+    // Validation de l'image
+    $image_path = null;
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $allowed_types = ['image/jpeg', 'image/png'];
+        $max_size = 2 * 1024 * 1024; // 2MB
+        
+        if (!in_array($_FILES['image']['type'], $allowed_types)) {
+            $errors['image'] = 'Le format de l\'image doit être JPG ou PNG';
+        } elseif ($_FILES['image']['size'] > $max_size) {
+            $errors['image'] = 'L\'image ne doit pas dépasser 2MB';
+        } else {
+            // Traiter l'image
+            $image_result = $file_services['handle_referentiel_image']($_FILES['image']);
+            if ($image_result) {
+                $image_path = $image_result;
+            } else {
+                $errors['image'] = 'Erreur lors du traitement de l\'image';
+            }
+        }
+    }
+    
+    // S'il y a des erreurs, réafficher le formulaire avec les erreurs
     if (!empty($errors)) {
-        render('admin.layout.php', 'referentiel/list.html.php', [
+        render('admin.layout.php', 'referentiel/create_referentiel.html.php', [
             'user' => $user,
+            'active_menu' => 'referentiels',
             'errors' => $errors,
             'name' => $name,
-            'description' => $description
+            'description' => $description,
+            'capacity' => $capacity,
+            'sessions' => $sessions
         ]);
         return;
     }
     
-    // Définir des valeurs par défaut pour les champs manquants
+    // Création du référentiel
     $referentiel_data = [
         'name' => $name,
         'description' => $description,
-        'capacite' => 30,  // Valeur par défaut
-        'sessions' => 10,  // Valeur par défaut
-        'image' => "assets/images/default-referentiel.jpg"  // Image par défaut
+        'capacity' => (int)$capacity,
+        'sessions' => (int)$sessions,
+        'image' => $image_path ?? 'assets/images/referentiels/default.jpg'
     ];
     
-    // Création du référentiel
-    $result = $model['create_referentiel']($referentiel_data);
-    
-    if (!$result) {
+    if ($model['create_referentiel']($referentiel_data)) {
+        $session_services['set_flash_message']('success', 'Le référentiel a été créé avec succès');
+        redirect('?page=all-referentiels');
+    } else {
         $session_services['set_flash_message']('danger', 'Erreur lors de la création du référentiel');
-        render('admin.layout.php', 'referentiel/list.html.php', [
+        render('admin.layout.php', 'referentiel/create_referentiel.html.php', [
             'user' => $user,
+            'active_menu' => 'referentiels',
             'name' => $name,
-            'description' => $description
+            'description' => $description,
+            'capacity' => $capacity,
+            'sessions' => $sessions
         ]);
-        return;
     }
-    
-    // Si une promotion a été sélectionnée, affecter le référentiel
-    if (!empty($promotion)) {
-        $model['assign_referentiels_to_promotion']($promotion, [$result]);
-    }
-    
-    // Redirection avec message de succès
-    $session_services['set_flash_message']('success', 'Référentiel créé avec succès');
-    redirect('?page=referentiels');
 }
 
 // Affichage du formulaire d'affectation de référentiels à une promotion
 function assign_referentiels_form() {
     global $model, $session_services;
-    
+
     // Vérification des droits d'accès (Admin uniquement)
     $user = check_profile(Enums\ADMIN);
-    
+
     // Récupération de la promotion courante
     $current_promotion = $model['get_current_promotion']();
-    
+
     if (!$current_promotion) {
         $session_services['set_flash_message']('info', 'Aucune promotion active. Veuillez d\'abord activer une promotion.');
         redirect('?page=promotions');
         return;
     }
-    
+
     // Récupération de tous les référentiels
     $all_referentiels = $model['get_all_referentiels']();
-    
+
     // Récupération des référentiels déjà affectés à la promotion
     $assigned_referentiels = $model['get_referentiels_by_promotion']($current_promotion['id']);
     $assigned_ids = array_map(function($ref) {
         return $ref['id'];
     }, $assigned_referentiels);
-    
+
     // Filtrer les référentiels non affectés
     $unassigned_referentiels = array_filter($all_referentiels, function($ref) use ($assigned_ids) {
         return !in_array($ref['id'], $assigned_ids);
     });
-    
+
+    // Pagination
+    $page = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
+    $limit = 3; // Nombre de cartes par page
+    $total = count($unassigned_referentiels);
+    $pages = ceil($total / $limit);
+    $offset = ($page - 1) * $limit;
+
+    // Limiter les résultats pour la page courante
+    $unassigned_referentiels = array_slice($unassigned_referentiels, $offset, $limit);
+
     // Affichage de la vue
     render('admin.layout.php', 'referentiel/assign.html.php', [
         'user' => $user,
         'current_promotion' => $current_promotion,
-        'unassigned_referentiels' => array_values($unassigned_referentiels)
+        'unassigned_referentiels' => array_values($unassigned_referentiels),
+        'page' => $page,
+        'pages' => $pages,
+        'total' => $total
     ]);
 }
 
@@ -271,4 +313,121 @@ function assign_referentiels_to_promotion() {
     }
     
     redirect('?page=referentiels');
+}
+function remove_from_promo() {
+    global $model, $session_services;
+
+    // Vérification des droits d'accès (Admin uniquement)
+    check_profile(\App\Enums\ADMIN);
+
+    // Récupérer l'ID du référentiel et de la promotion active
+    $referentiel_id = $_GET['referentiel_id'] ?? null;
+    $current_promotion = $model['get_current_promotion']();
+
+    if (!$referentiel_id || !$current_promotion) {
+        $session_services['set_flash_message']('error', 'Référentiel ou promotion introuvable.');
+        redirect('?page=referentiels');
+        return;
+    }
+
+    // Désaffecter le référentiel de la promotion
+    $result = $model['remove_referentiel_from_promo']($current_promotion['id'], $referentiel_id);
+
+    if ($result) {
+        $session_services['set_flash_message']('success', 'Référentiel désaffecté avec succès.');
+    } else {
+        $session_services['set_flash_message']('error', 'Erreur lors de la désaffectation du référentiel.');
+    }
+
+    redirect('?page=referentiels');
+}
+
+function manage_promos() {
+    global $model, $session_services;
+
+    // Vérification des droits d'accès (Admin uniquement)
+    check_profile(\App\Enums\ADMIN);
+
+    // Récupérer la promotion active
+    $current_promotion = $model['get_current_promotion']();
+
+    if (!$current_promotion) {
+        $session_services['set_flash_message']('info', 'Aucune promotion active.');
+        redirect('?page=promotions');
+        return;
+    }
+
+    // Récupérer les référentiels assignés et non assignés
+    $all_referentiels = $model['get_all_referentiels']();
+    $assigned_referentiels = $model['get_referentiels_by_promotion']($current_promotion['id']);
+    $assigned_ids = array_map(fn($ref) => $ref['id'], $assigned_referentiels);
+
+    $unassigned_referentiels = array_filter($all_referentiels, fn($ref) => !in_array($ref['id'], $assigned_ids));
+
+    // Affichage de la vue
+    render('admin.layout.php', 'referentiel/manage-promos.html.php', [
+        'current_promotion' => $current_promotion,
+        'assigned_referentiels' => $assigned_referentiels,
+        'unassigned_referentiels' => $unassigned_referentiels,
+    ]);
+}
+function manage_promos_process() {
+    global $model, $session_services;
+
+    // Vérification des droits d'accès (Admin uniquement)
+    check_profile(\App\Enums\ADMIN);
+
+    // Récupérer la promotion active
+    $current_promotion = $model['get_current_promotion']();
+
+    if (!$current_promotion) {
+        $session_services['set_flash_message']('error', 'Aucune promotion active.');
+        redirect('?page=promotions');
+        return;
+    }
+
+    // Récupérer l'action
+    $action = $_POST['action'] ?? null;
+
+    // Gérer les actions
+    if ($action === 'add') {
+        $assign_referentiel = $_POST['assign_referentiel'] ?? null;
+        if ($assign_referentiel) {
+            $model['assign_referentiels_to_promotion']($current_promotion['id'], [$assign_referentiel]);
+        }
+    } elseif ($action === 'remove') {
+        $remove_referentiel = $_POST['remove_referentiel'] ?? null;
+        if ($remove_referentiel) {
+            $model['remove_referentiel_from_promo']($current_promotion['id'], $remove_referentiel);
+        }
+    } elseif ($action === 'finish') {
+        $session_services['set_flash_message']('success', 'Informations gérées avec succès.');
+        redirect('?page=referentiels');
+        return;
+    }
+
+    // Recharger la page sans redirection
+    redirect('?page=manage-promos');
+}
+function manage_referentiels($promotion_id) {
+    global $model, $session_services;
+
+    // Récupérer la promotion
+    $promotion = $model['get_promotion_by_id']($promotion_id);
+
+    // Vérifier si la promotion est en cours
+    if (!$promotion || $promotion['etat'] !== 'en cours') {
+        $session_services['set_flash_message']('error', 'Impossible de modifier les référentiels : la promotion n\'est pas en cours.');
+        redirect('?page=referentiels');
+        return;
+    }
+
+    // Charger les référentiels associés
+    $referentiels = $model['get_all_referentiels']();
+
+    // Afficher la page de gestion des référentiels
+    render('admin.layout.php', 'referentiel/manage.html.php', [
+        'referentiels' => $referentiels,
+        'promotion' => $promotion
+    ]);
 }

@@ -18,6 +18,12 @@ $error_messages = [
         'name_exists' => 'Un référentiel avec ce nom existe déjà',
         'create_failed' => 'Erreur lors de la création du référentiel',
         'update_failed' => 'Erreur lors de la mise à jour du référentiel'
+    ],
+    'apprenant' => [
+        'email_exists' => 'Cet email est déjà utilisé par un autre apprenant',
+        'create_failed' => 'Erreur lors de la création de l\'apprenant',
+        'update_failed' => 'Erreur lors de la mise à jour de l\'apprenant',
+        'delete_failed' => 'Erreur lors de la suppression de l\'apprenant'
     ]
 ];
 
