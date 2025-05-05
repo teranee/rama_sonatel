@@ -203,7 +203,7 @@ function save_referentiel() {
 }
 
 // Affichage du formulaire d'affectation de référentiels à une promotion
-function assign_referentiels_form() {
+/* function assign_referentiels_form() {
     global $model, $session_services;
 
     // Vérification des droits d'accès (Admin uniquement)
@@ -290,7 +290,7 @@ function assign_referentiels_process() {
     // Redirection vers la liste des référentiels de la promotion avec un message de succès
     $session_services['set_flash_message']('success', $success_messages['referentiel']['assigned']);
     redirect('?page=referentiels');
-}
+} */
 
 function assign_referentiels_to_promotion() {
     global $model, $session_services;
@@ -407,7 +407,7 @@ function manage_promos_process() {
     }
 
     // Recharger la page sans redirection
-    redirect('?page=manage-promos');
+    redirect('?page=assign-referentiels');
 }
 function manage_referentiels($promotion_id) {
     global $model, $session_services;

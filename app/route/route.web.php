@@ -2,12 +2,28 @@
 
 namespace App\Route;
 
+// Inclure les fichiers nécessaires
 require_once __DIR__ . '/../controllers/auth.controller.php';
 require_once __DIR__ . '/../controllers/promotion.controller.php';
 require_once __DIR__ . '/../controllers/referentiel.controller.php';
 require_once __DIR__ . '/../controllers/dashboard.controller.php';
+require_once __DIR__ . '/../controllers/export.controller.php';
+require_once __DIR__ . '/../controllers/apprenant.controller.php';
+require_once __DIR__ . '/../services/session.service.php';
+require_once __DIR__ . '/../models/model.php';
 
 use App\Controllers;
+use App\Services;
+
+// Démarrer la session
+global $session_services;
+if (isset($session_services) && is_array($session_services) && isset($session_services['start_session'])) {
+    $session_services['start_session']();
+} else {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+}
 
 // Définition des routes
 $routes = [
@@ -24,64 +40,98 @@ $routes = [
     
     // Routes pour les promotions
     'promotions' => 'App\Controllers\list_promotions',
-    'add_promotion_form' => 'App\Controllers\add_promotion_form', // Correction du nom de la route
-    'add_promotion' => 'App\Controllers\add_promotion_process',   // Correction du nom de la route
+    'add_promotion_form' => 'App\Controllers\add_promotion_form',
+    'add_promotion' => 'App\Controllers\add_promotion_process',
     'toggle_promotion_status' => 'App\Controllers\toggle_promotion_status',
     'promotion' => 'App\Controllers\promotion_details',
     
     // Routes pour les référentiels
     'referentiels' => 'App\Controllers\list_referentiels',
     'all-referentiels' => 'App\Controllers\all_referentiels_form',
-    'add-referentiel' => 'App\Controllers\add_referentiel_form',
-    'add-referentiel-process' => 'App\Controllers\add_referentiel_process',
-    'assign-referentiels' => 'App\Controllers\assign_referentiels_form',
-    'assign-referentiels-process' => 'App\Controllers\assign_referentiels_process',
-    'add-to-promo' => 'App\Controllers\add_to_promo',
-    'remove-from-promo' => 'App\Controllers\remove_from_promo',
-    // Autres routes...
-    'manage-promos' => 'App\Controllers\manage_promos',
-    'manage-promos-process' => 'App\Controllers\manage_promos_process',
-    // Route par défaut pour le tableau de bord
-    'dashboard' => 'App\Controllers\dashboard',
+    'add-referentiels' => 'App\Controllers\create_referentiel',
+    'add-referentiel-process' => 'App\Controllers\save_referentiel',
+    'assign-referentiels' => 'App\Controllers\manage_promos',
+    'assign-referentiels-process' => 'App\Controllers\manage_promos_process',
     
-    // Route pour les erreurs
-    'forbidden' => 'App\Controllers\forbidden',
-    
-    // Route par défaut (page non trouvée)
-    '404' => 'App\Controllers\not_found',
-    'test_upload' => 'App\Controllers\test_upload',
-    'test_upload_process' => 'App\Controllers\test_upload_process',
-    // Ajouter ces routes dans le tableau des routes
+    // Routes pour les apprenants
     'apprenants' => 'App\Controllers\list_apprenants',
     'add-apprenant-form' => 'App\Controllers\add_apprenant_form',
-    'add-apprenant' => 'App\Controllers\add_apprenant',
-    'view-apprenant' => 'App\Controllers\view_apprenant',
+    'add-apprenant-process' => 'App\Controllers\add_apprenant_process',
     'edit-apprenant-form' => 'App\Controllers\edit_apprenant_form',
-    'edit-apprenant' => 'App\Controllers\edit_apprenant',
+    'edit-apprenant' => 'App\Controllers\edit_apprenant_process',
     'delete-apprenant' => 'App\Controllers\delete_apprenant',
+    'approve-apprenant' => 'App\Controllers\approve_apprenant',
+    'edit-waiting-apprenant-form' => 'App\Controllers\edit_waiting_apprenant_form',
+    'edit-waiting-apprenant-process' => 'App\Controllers\edit_waiting_apprenant_process',
+    'delete-waiting-apprenant' => 'App\Controllers\delete_waiting_apprenant',
+    'import-apprenants' => 'App\Controllers\import_apprenants_form',
+    'import-apprenants-process' => 'App\Controllers\import_apprenants_process',
+    'download-template' => 'App\Controllers\download_template',
     'export-apprenants' => 'App\Controllers\export_apprenants',
-    // Routes pour l'exportation
+    'export-apprenants-html' => 'App\Controllers\export_apprenants_html',
     'export-apprenants-pdf' => 'App\Controllers\export_apprenants_pdf',
-    'export-apprenants-excel' => 'App\Controllers\export_apprenants_excel',
+    
+    // Route pour le tableau de bord
+
+    'dashboard' =>'\App\Controllers\dashboard_page',
+    
+    
+    // Routes pour les erreurs
+    '403' => 'App\Controllers\forbidden',
+    '404' => 'App\Controllers\not_found',
 ];
 
 /**
- * Fonction de routage qui exécute le contrôleur correspondant à la page demandée
- *
- * @param string $page La page demandée
- * @return mixed Le résultat de la fonction contrôleur
+ * Fonction pour gérer les requêtes et router vers le bon contrôleur
  */
-function route($page) {
-    global $routes;
+function route() {
+    global $routes, $session_services;
     
-    // Vérifie si la route demandée existe
-    $route_exists = array_key_exists($page, $routes);
+    // Liste des pages qui ne nécessitent pas d'authentification
+    $public_pages = ['login', 'login-process', 'forgot-password', 'forgot-password-process', 'reset-password', 'reset-password-process'];
     
-    // Si la route n'existe pas, renvoyer vers la page 404
-    if (!$route_exists) {
-        return call_user_func($routes['404']);
+    // Récupération de la page demandée
+    $page = isset($_GET['page']) ? $_GET['page'] : 'login';
+    
+    // Vérifier si l'utilisateur doit être connecté pour accéder à la page
+    if (!in_array($page, $public_pages)) {
+        $is_logged_in = false;
+        
+        // Vérifier si l'utilisateur est connecté
+        if (isset($session_services) && is_array($session_services) && isset($session_services['is_logged_in'])) {
+            $is_logged_in = $session_services['is_logged_in']();
+        } else {
+            $is_logged_in = isset($_SESSION['user']);
+        }
+        
+        if (!$is_logged_in) {
+            // Définir un message flash
+            if (isset($session_services) && is_array($session_services) && isset($session_services['set_flash_message'])) {
+                $session_services['set_flash_message']('danger', 'Veuillez vous connecter pour accéder à cette page');
+            } else {
+                $_SESSION['flash_message'] = [
+                    'type' => 'danger',
+                    'message' => 'Veuillez vous connecter pour accéder à cette page'
+                ];
+            }
+            
+            // Rediriger vers la page de connexion
+            header('Location: ?page=login');
+            exit;
+        }
     }
     
-    // Exécute la fonction contrôleur
-    return call_user_func($routes[$page]);
+    // Vérifier si la route existe
+    if (isset($routes[$page])) {
+        // Appeler la fonction correspondante
+        call_user_func($routes[$page]);
+    } else {
+        // Route non trouvée, afficher la page 404
+        header("HTTP/1.0 404 Not Found");
+        if (isset($routes['404'])) {
+            call_user_func($routes['404']);
+        } else {
+            echo "Page non trouvée";
+        }
+    }
 }

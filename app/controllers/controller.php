@@ -22,15 +22,17 @@ function render($layout, $template, $data = []) {
     // Extraction des données pour les rendre disponibles dans la vue
     extract($data);
     
+    // Utiliser un chemin absolu vers les vues
+    $base_path = dirname(__DIR__); // Remonte d'un niveau depuis le dossier controllers
+    
     // Capturer le contenu du template
     ob_start();
-    require_once __DIR__ . '/../views/' . $template;
+    require_once $base_path . '/views/' . $template;
     $content = ob_get_clean();
     
     // Rendre le layout avec le contenu capturé
-    require_once __DIR__ . '/../views/layout/' . $layout;
+    require_once $base_path . '/views/layout/' . $layout;
 }
-
 // Redirection vers une autre page
 function redirect($url) {
     if (!headers_sent()) {

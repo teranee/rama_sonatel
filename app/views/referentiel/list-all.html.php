@@ -14,7 +14,7 @@
             
             <!-- Boutons placés ici, directement sous le titre -->
             <div class="header-buttons">
-                <a href="?page=create_referentiel" class="btn-create">Créer un référentiel</a>
+                <a href="?page=add-referentiels" class="btn-create">Créer un référentiel</a>
                 <a href="?page=referentiels" class="btn-back">Retour</a>
             </div>
         </div>

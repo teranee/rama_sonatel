@@ -56,7 +56,7 @@ function dashboard_page() {
     // Calculer les statistiques
     $stats = [
         'active_learners' => count(array_filter($data['apprenants'] ?? [], function($apprenant) {
-            return $apprenant['status'] === 'active';
+            return $apprenant['statut'] === 'active';
         })),
         'total_referentials' => count($data['referentiels'] ?? []),
         'active_promotions' => count(array_filter($data['promotions'] ?? [], function($promotion) {

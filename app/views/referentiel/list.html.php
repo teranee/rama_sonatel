@@ -8,10 +8,10 @@
 </head>
 <body>
 
-<!-- app/views/referentiel/list.html.php -->
-<!-- app/views/referentiel/list.html.php -->
 
-<!-- app/views/referentiel/list.html.php -->
+
+
+
 <div class="container">
     <div class="header">
         <h1>Référentiels de <?= htmlspecialchars($current_promotion['name']) ?></h1>
@@ -25,8 +25,10 @@
             <input type="text" 
                    name="search" 
                    placeholder="Rechercher un référentiel..." 
-                   value="<?= htmlspecialchars($search ?? '') ?>"
-                   oninput="searchReferentiels(this.value)">
+
+
+                   value="<?= htmlspecialchars($search ?? '') ?>">
+            <button type="submit" class="search-button">Rechercher</button>
         </form>
         
        <div class="option">
@@ -36,7 +38,7 @@
         <button 
             class="btn <?= $current_promotion['etat'] !== 'en cours' ? 'btn-disabled' : 'btn-teal' ?>" 
             <?= $current_promotion['etat'] !== 'en cours' ? 'disabled' : '' ?>
-            onclick="window.location.href='?page=manage-promos'">
+            onclick="window.location.href='?page=assign-referentiels'">
             <span>⚙</span> Gérer les référentiels
         </button>
         <?php if ($current_promotion['etat'] !== 'en cours'): ?>
@@ -48,10 +50,30 @@
     </div>
     
     <div class="cards-container">
-        <?php if (empty($referentiels)): ?>
-            <div class="no-data">Aucun référentiel n'est assigné à cette promotion</div>
+
+
+        <?php 
+        // Filtrer les référentiels en fonction de la recherche
+        $filtered_referentiels = $referentiels;
+        if (isset($search) && !empty($search)) {
+            $filtered_referentiels = array_filter($referentiels, function($ref) use ($search) {
+                $search_lower = strtolower($search);
+                $name_lower = strtolower($ref['name']);
+                $description_lower = strtolower($ref['description']);
+                
+                return strpos($name_lower, $search_lower) !== false || 
+                       strpos($description_lower, $search_lower) !== false;
+            });
+        }
+        
+        if (empty($filtered_referentiels)): 
+        ?>
+            <div class="no-data">
+                <?= isset($search) && !empty($search) ? 'Aucun référentiel trouvé pour votre recherche' : 'Aucun référentiel n\'est assigné à cette promotion' ?>
+            </div>
         <?php else: ?>
-            <?php foreach ($referentiels as $ref): ?>
+
+            <?php foreach ($filtered_referentiels as $ref): ?>
                 <div class="card">
                     <div class="card-image">
                         <img src="<?= $ref['image'] ? '/' . $ref['image'] : '/assets/images/referentiels/default.jpg' ?>" 
@@ -79,60 +101,103 @@
 </div>
 
 <style>
-   
+
+    /* Styles pour les cartes de référentiels */
+    .card-image {
+        height: 180px;
+        overflow: hidden;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover .card-image img {
+        transform: scale(1.05);
+    }
+    
+    /* Style pour le bouton de recherche */
+    .search-button {
+        background-color: #f5a623;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .search-button:hover {
+        background-color: #e09612;
+    }
+    
+    /* Ajustement du champ de recherche */
+    .search-bar {
+        display: flex;
+        align-items: center;
+    }
+    
+    .search-bar input[type="text"] {
+        border-radius: 4px 0 0 4px;
+        border-right: none;
+    }
 </style>
 
-<script>
-let searchTimeout;
 
-function searchReferentiels(query) {
-    clearTimeout(searchTimeout);
-    
-    searchTimeout = setTimeout(() => {
-        const container = document.querySelector('.cards-container');
-        const cards = container.querySelectorAll('.card');
-        
-        if (query.length === 0) {
-            cards.forEach(card => card.style.display = 'block');
-            return;
-        }
-        
-        cards.forEach(card => {
-            const title = card.querySelector('.card-title').textContent.toLowerCase();
-            const description = card.querySelector('.card-description').textContent.toLowerCase();
-            query = query.toLowerCase();
-            
-            if (title.includes(query) || description.includes(query)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // Afficher le message "Aucun résultat" si nécessaire
-        const visibleCards = container.querySelectorAll('.card[style="display: block"]');
-        const noDataMessage = container.querySelector('.no-data');
-        
-        if (visibleCards.length === 0) {
-            if (!noDataMessage) {
-                const message = document.createElement('div');
-                message.className = 'no-data';
-                message.textContent = 'Aucun référentiel trouvé';
-                container.appendChild(message);
-            }
-        } else if (noDataMessage) {
-            noDataMessage.remove();
-        }
-    }, 300); // Délai de 300ms pour éviter trop de recherches
-}
 
-// Optionnel : Soumettre le formulaire quand on appuie sur Entrée
-document.querySelector('.search-bar').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const query = this.querySelector('input[name="search"]').value;
-    window.location.href = `?page=referentiels&search=${encodeURIComponent(query)}`;
-});
-</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 

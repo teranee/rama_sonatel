@@ -223,8 +223,13 @@ function list_promotions() {
     if ($view_mode === 'grid') {
         // En mode grille, les statistiques concernent uniquement la promotion active
         if ($active_promotion) {
-            $total_apprenants = $active_promotion['nb_apprenants'];
-            $total_referentiels = count($active_promotion['referentiels']);
+            $total_apprenants = isset($active_promotion['nb_apprenants']) ? 
+                $active_promotion['nb_apprenants'] : 
+                (isset($active_promotion['apprenants']) ? count($active_promotion['apprenants']) : 0);
+        
+            $total_referentiels = isset($active_promotion['referentiels']) ? 
+                count($active_promotion['referentiels']) : 0;
+            
             $active_promotions = 1;
         } else {
             $total_apprenants = 0;
@@ -234,12 +239,28 @@ function list_promotions() {
     } else {
         // En mode liste, les statistiques concernent toutes les promotions
         $total_apprenants = 0;
+        $all_referentiels_ids = [];
+        
         foreach ($all_promotions as $promotion) {
-            $total_apprenants += $promotion['nb_apprenants'];
+            // Compter les apprenants
+            if (isset($promotion['nb_apprenants'])) {
+                $total_apprenants += $promotion['nb_apprenants'];
+            } else if (isset($promotion['apprenants']) && is_array($promotion['apprenants'])) {
+                $total_apprenants += count($promotion['apprenants']);
+            }
+        
+            // Collecter les IDs de référentiels
+            if (isset($promotion['referentiels']) && is_array($promotion['referentiels'])) {
+                $all_referentiels_ids = array_merge($all_referentiels_ids, $promotion['referentiels']);
+            }
         }
-        $total_referentiels = count($referentiels);
+        
+        // Compter les référentiels uniques
+        $total_referentiels = count(array_unique($all_referentiels_ids));
+        
+        // Compter les promotions actives
         $active_promotions = count(array_filter($all_promotions, function($p) {
-            return $p['status'] === 'active';
+            return isset($p['status']) && $p['status'] === 'active';
         }));
     }
 

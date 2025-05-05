@@ -14,7 +14,7 @@
         <a href="?page=referentiels" class="btn btn-back">Retour</a>
     </div>
 
-    <form action="?page=manage-promos-process" method="POST">
+    <form action="?page=assign-referentiels-process" method="POST">
         <input type="hidden" name="action" value="">
 
         <!-- Section pour l'ajout de référentiels -->

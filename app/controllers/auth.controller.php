@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/model.php';
 require_once __DIR__ . '/../services/validator.service.php';
 require_once __DIR__ . '/../services/session.service.php';
 require_once __DIR__ . '/../enums/profile.enum.php';
+require_once __DIR__ . '/../services/mail.service.php';
 
 // Chargement des messages
 $error_messages = require_once __DIR__ . '/../translate/fr/error.fr.php';
@@ -109,15 +110,9 @@ function forgot_password_page() {
 
 // Traitement de la demande de réinitialisation de mot de passe
 function forgot_password_process() {
-    global $model, $validator_services, $session_services, $error_messages;
+    global $model, $validator_services, $session_services, $mail_services, $error_messages;
     
-    $session_services['start_session']();
-    
-    // Si l'utilisateur est déjà connecté, redirection vers le tableau de bord
-    if ($session_services['is_logged_in']()) {
-        redirect('?page=dashboard');
-    }
-    
+    // Récupération des données du formulaire
     $email = $_POST['email'] ?? '';
     
     // Validation de l'email
@@ -157,7 +152,7 @@ function forgot_password_process() {
     }
     
     if ($user_found) {
-        // Générer un token de réinitialisation (simple pour ce projet éducatif)
+        // Générer un token de réinitialisation
         $token = md5($email . time());
         
         // Enregistrer le token dans les données utilisateur
@@ -165,17 +160,27 @@ function forgot_password_process() {
         $data['users'][$user_index]['reset_expire'] = time() + 3600; // valide 1 heure
         
         if ($model['write_data']($data)) {
-            // Dans un environnement réel, on enverrait un email
-            // Pour ce projet, on redirige directement vers la page de réinitialisation
-            $session_services['set_flash_message']('info', 'Vous pouvez maintenant réinitialiser votre mot de passe');
-            redirect('?page=reset-password&token=' . $token);
-            return;
+            // Envoyer l'email de réinitialisation
+            $email_sent = $mail_services['send_reset_password_email']($email, $token);
+            
+            if ($email_sent) {
+                $session_services['set_flash_message']('success', 'Un email de réinitialisation a été envoyé à votre adresse email.');
+            } else {
+                $session_services['set_flash_message']('danger', 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer plus tard.');
+            }
+            
+            redirect('?page=login');
+        } else {
+            $session_services['set_flash_message']('danger', 'Erreur lors de la génération du token. Veuillez réessayer.');
+            render('auth.layout.php', 'auth/forgot_password.html.php', [
+                'email' => $email
+            ]);
         }
+    } else {
+        // Pour des raisons de sécurité, ne pas indiquer si l'email existe ou non
+        $session_services['set_flash_message']('info', 'Si votre email est enregistré, vous recevrez un lien de réinitialisation.');
+        redirect('?page=login');
     }
-    
-    // Même message que l'utilisateur existe ou non (sécurité)
-    $session_services['set_flash_message']('info', 'Si cette adresse email est associée à un compte, vous recevrez un lien de réinitialisation.');
-    redirect('?page=login');
 }
 
 // Page de réinitialisation de mot de passe

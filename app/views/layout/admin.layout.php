@@ -47,19 +47,19 @@
                     <li class="<?= isset($active_menu) && $active_menu === 'promotions' ? 'active' : '' ?>">
                         <a href="?page=promotions">
                             <span class="icon"></span>
-                            <span>Gestion des promotions</span>
+                            <span> Promotions</span>
                         </a>
                     </li>
                     <li class="<?= isset($active_menu) && $active_menu === 'referentiels' ? 'active' : '' ?>">
                         <a href="?page=referentiels">
                             <span class="icon"></span>
-                            <span>Gestion des référentiels</span>
+                            <span> Référentiels</span>
                         </a>
                     </li>
                     <li class="<?= isset($active_menu) && $active_menu === 'apprenants' ? 'active' : '' ?>">
                         <a href="?page=apprenants">
                             <span class="icon"></span>
-                            <span>Gestion des apprenants</span>
+                            <span>Apprenants</span>
                         </a>
                     </li>
                     <li class="<?= isset($active_menu) && $active_menu === 'presences' ? 'active' : '' ?>">
@@ -89,6 +89,21 @@
             </div>
         </div>
         
+        <!-- Menu hamburger -->
+        <div class="hamburger-menu">
+            <i class="fas fa-bars"></i>
+            <div class="hamburger-menu-content">
+                <a href="?page=dashboard">Tableau de bord</a>
+                <a href="?page=promotions">Promotions</a>
+                <a href="?page=referentiels">Référentiels</a>
+                <a href="?page=apprenants">Apprenants</a>
+                <a href="?page=presences">Gestion des présences</a>
+                <a href="?page=kits">Kits & Laptops</a>
+                <a href="?page=rapports">Rapports & Stats</a>
+                <a href="?page=logout">Déconnexion</a>
+            </div>
+        </div>
+
         <!-- Contenu principal -->
         <div class="main-content">
             <!-- Header / Entête -->
@@ -103,22 +118,24 @@
                         <span></span>
                     </div>
                     <div class="user-profile">
+                        <?php
+                        global $session_services;
+                        $current_user = $session_services['get_current_user']();
+                        ?>
                         <div class="user-info">
-                            <span class="user-name"><?= isset($user['name']) ? $user['name'] : 'Utilisateur' ?></span>
-                            <span class="user-role"><?= isset($user['profile']) ? $user['profile'] : 'Invité' ?></span>
+                            <span class="user-name"><?= isset($current_user['name']) ? htmlspecialchars($current_user['name']) : 'Utilisateur' ?></span>
+                            <span class="user-role"><?= isset($current_user['profile']) ? htmlspecialchars($current_user['profile']) : 'Invité' ?></span>
                         </div>
-                         <div class="avatar">
-                            <img src="assets/images/avatar.png" alt="Avatar">
+                        <div class="avatar">
+                            <img src="assets/images/demon1.jpeg" alt="Avatar">
                         </div> 
-                       <div class="dropdown-menu">
+                        <div class="dropdown-menu">
                             <ul>
                                 <li><a href="?page=profile">Profil</a></li>
                                 <li><a href="?page=change-password">Changer mot de passe</a></li>
                                 <li><a href="?page=logout">Déconnexion</a></li>
                             </ul>
                         </div> 
-
-                        
                     </div>
                 </div>
             </header>

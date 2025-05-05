@@ -494,11 +494,53 @@ $model = [
         return !empty($apprenants) ? reset($apprenants) : null;
     },
     
+    // Ajouter un apprenant à la liste d'attente
+    'add_to_waiting_list' => function ($apprenant_data) use (&$model) {
+        $data = $model['read_data']();
+        
+        // Initialiser la liste d'attente si elle n'existe pas
+        if (!isset($data['waiting_list'])) {
+            $data['waiting_list'] = [];
+        }
+        
+        // Ajouter l'apprenant à la liste d'attente
+        $data['waiting_list'][] = $apprenant_data;
+        
+        // Sauvegarder les données
+        return $model['write_data']($data);
+    },
+
+    // Récupérer les apprenants de la liste d'attente
+    'get_waiting_list' => function ($promotion_id = null) use (&$model) {
+        $data = $model['read_data']();
+        
+        if (!isset($data['waiting_list'])) {
+            return [];
+        }
+        
+        // Filtrer par promotion si nécessaire
+        if ($promotion_id) {
+            return array_filter($data['waiting_list'], function($apprenant) use ($promotion_id) {
+                return isset($apprenant['promotion_id']) && $apprenant['promotion_id'] === $promotion_id;
+            });
+        }
+        
+        return $data['waiting_list'];
+    },
+
+    // Vérifier si un email existe déjà
     'email_exists' => function ($email) use (&$model) {
         $data = $model['read_data']();
         
-        // Vérifier si l'email existe déjà
+        // Vérifier dans les apprenants
         foreach ($data['apprenants'] ?? [] as $apprenant) {
+            if (isset($apprenant['email']) && strtolower($apprenant['email']) === strtolower($email)) {
+                return true;
+            }
+        }
+        
+        // Vérifier dans la liste d'attente
+        foreach ($data['waiting_list'] ?? [] as $apprenant) {
             if (isset($apprenant['email']) && strtolower($apprenant['email']) === strtolower($email)) {
                 return true;
             }
@@ -709,5 +751,52 @@ $model = [
         }
 
         $model['write_data']($data);
+    },
+    // Mettre à jour un apprenant dans la liste d'attente
+    'update_waiting_apprenant' => function ($apprenant_data) use (&$model) {
+        $data = $model['read_data']();
+        
+        if (!isset($data['waiting_list'])) {
+            return false;
+        }
+        
+        // Trouver l'index de l'apprenant dans la liste d'attente
+        $apprenant_index = -1;
+        foreach ($data['waiting_list'] as $index => $apprenant) {
+            if ($apprenant['id'] === $apprenant_data['id']) {
+                $apprenant_index = $index;
+                break;
+            }
+        }
+        
+        if ($apprenant_index === -1) {
+            return false;
+        }
+        
+        // Mettre à jour l'apprenant
+        $data['waiting_list'][$apprenant_index] = $apprenant_data;
+        
+        // Sauvegarder les données
+        return $model['write_data']($data);
+    },
+
+    // Supprimer un apprenant de la liste d'attente
+    'remove_from_waiting_list' => function ($apprenant_id) use (&$model) {
+        $data = $model['read_data']();
+        
+        if (!isset($data['waiting_list'])) {
+            return false;
+        }
+        
+        // Filtrer la liste d'attente pour supprimer l'apprenant
+        $data['waiting_list'] = array_filter($data['waiting_list'], function($apprenant) use ($apprenant_id) {
+            return $apprenant['id'] !== $apprenant_id;
+        });
+        
+        // Réindexer le tableau
+        $data['waiting_list'] = array_values($data['waiting_list']);
+        
+        // Sauvegarder les données
+        return $model['write_data']($data);
     },
 ];

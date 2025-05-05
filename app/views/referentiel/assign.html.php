@@ -1,4 +1,4 @@
-<div class="container">
+<!-- <div class="container">
     <head>
         <link rel="stylesheet" href="/assets/css/assign.css">
     </head>
@@ -68,4 +68,4 @@
             <a href="?page=assign-referentiels&page_num=<?= $page + 1 ?>" class="pagination-link">Suivant</a>
         <?php endif; ?>
     </div>
-<?php endif; ?>
+<?php endif; ?> -->

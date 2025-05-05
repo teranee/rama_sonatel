@@ -14,7 +14,7 @@
         </div>
         
         <div class="form-container">
-            <form action="?page=save_referentiel" method="post" enctype="multipart/form-data">
+            <form action="?page=add-referentiel-process" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="name">Nom du référentiel</label>
                     <input type="text" id="name" name="name" required value="<?= isset($name) ? htmlspecialchars($name) : '' ?>">

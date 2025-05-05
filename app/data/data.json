@@ -369,7 +369,7 @@
                 "1",
                 "3",
                 "4",
-                "6"
+                "5"
             ],
             "id": 1745499131
         },
@@ -533,6 +533,15 @@
             "capacity": 3,
             "sessions": 3,
             "image": "assets\/images\/referentiels\/68105007c2d75_demon1.jpeg"
+        },
+        {
+            "id": "11",
+            "name": "teranee",
+            "description": "bonjour",
+            "capacity": 4,
+            "sessions": 1,
+            "etat": "en attente",
+            "image": "assets\/images\/referentiels\/6818a5f741540_brick.jpeg"
         }
     ],
     "apprenants": [
@@ -576,6 +585,34 @@
             "photo": "assets\/images\/referentiels\/68105007c2d75_demon1.jpeg",
             "referentiel": "REF DIG",
             "statut": "Renvoy\u00e9",
+            "promotion_id": 1745499131
+        },
+        {
+            "id": "4",
+            "matricule": "ODC-2025-0004",
+            "prenom": "Bob",
+            "nom": "Brown",
+            "email": "bob.brown@example.com",
+            "telephone": "779876543",
+            "date_naissance": "1996-11-05",
+            "adresse": "Dakar, S\u00e9n\u00e9gal",
+            "photo": "assets\/images\/referentiels\/68105007c2d75_demon1.jpeg",
+            "referentiel": "DEV WEB\/MOBILE",
+            "statut": "Actif",
+            "promotion_id": 1745499131
+        },
+        {
+            "id": "5",
+            "matricule": "ODC-2025-0005",
+            "prenom": "Charlie",
+            "nom": "Green",
+            "email": "charlie.green@example.com",
+            "telephone": "777654321",
+            "date_naissance": "1999-02-18",
+            "adresse": "Thi\u00e8s, S\u00e9n\u00e9gal",
+            "photo": "assets\/images\/referentiels\/68105007c2d75_demon1.jpeg",
+            "referentiel": "DATA",
+            "statut": "Actif",
             "promotion_id": 1745499131
         }
     ]
